@@ -6,14 +6,46 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "scheme": "grim-player",
+    "scheme": "exp+grim-keeper",
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "updates": {
+      "url": "https://u.expo.dev/89799b1d-f54f-490e-bcf5-cdf38764f4da"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "android": {
+      "package": "com.dleanjeans.grimkeeper",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "exp+grim-keeper"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
     "plugins": [
       "expo-router",
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      "./plugins/withJVMMemory"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "89799b1d-f54f-490e-bcf5-cdf38764f4da"
+      }
+    },
+    "owner": "dleanjeans"
   }
 }

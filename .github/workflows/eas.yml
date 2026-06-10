@@ -1,0 +1,19 @@
+name: EAS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+
+jobs:
+  eas:
+    uses: DleanJeans/expo-workflows/.github/workflows/eas.yml@main
+    with:
+      app-name: "grim-keeper"
+      expo-project-slug: "grim-keeper"
+      ota-label: "send ota"
+      apk-label: "rebuild apk"
+    secrets:
+      expo-token: ${{ secrets.EXPO_TOKEN }}
