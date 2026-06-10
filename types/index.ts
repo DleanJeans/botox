@@ -27,7 +27,6 @@ export interface Player {
   claimedRole: string | null;       // what they claimed to be
   suspicion: 0 | 1 | 2 | 3;        // 0=none, 1=low, 2=medium, 3=high
   notes: string;
-  nightTargets: string[];           // who they targeted at night (by player ID)
   voteHistory: VoteRecord[];
   defenseTokens: number;            // leftover defense tokens (for some scripts)
 }
@@ -56,7 +55,6 @@ export interface Game {
   layout: 'circle' | 'room';
   editMode: boolean;
   currentDay: number;
-  nightPhase: boolean;
   gameNotes: string;
   conversations: Conversation[];
 }

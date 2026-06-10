@@ -243,7 +243,6 @@ export default function RoleBrowser({
                 key={role.id}
                 role={role}
                 onSelect={onSelectRole || undefined}
-                showNightBadge
               />
             ))}
 

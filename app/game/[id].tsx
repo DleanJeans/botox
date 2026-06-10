@@ -43,13 +43,11 @@ export default function GameScreen() {
   const releasePlayerPosition = useGameStore(s => s.releasePlayerPosition);
 
   const setLayout = useGameStore(s => s.setLayout);
-  const toggleNightPhase = useGameStore(s => s.toggleNightPhase);
   const nextDay = useGameStore(s => s.nextDay);
   const setGuessedRole = useGameStore(s => s.setGuessedRole);
   const setClaimedRole = useGameStore(s => s.setClaimedRole);
   const setSuspicion = useGameStore(s => s.setSuspicion);
   const setNotes = useGameStore(s => s.setNotes);
-  const addNightTarget = useGameStore(s => s.addNightTarget);
   const importScript = useGameStore(s => s.importScript);
   const clearScript = useGameStore(s => s.clearScript);
   const addConversation = useGameStore(s => s.addConversation);
@@ -165,7 +163,6 @@ export default function GameScreen() {
         title={game.name}
         layout={game.layout}
         playerDraggable={playerDraggable}
-        nightPhase={game.nightPhase}
         playerCount={game.players.length}
         currentDay={game.currentDay}
         roomDraggable={roomDraggable}
@@ -178,7 +175,6 @@ export default function GameScreen() {
           setEditMode(next);
         }}
         onToggleRoomDrag={() => setRoomDraggable(d => !d)}
-        onToggleNight={toggleNightPhase}
         onBack={handleBack}
         onAddPlayer={handleAddPlayer}
       />
@@ -205,7 +201,7 @@ export default function GameScreen() {
             <Text style={styles.dayBtnText}>Prev Day</Text>
           </Pressable>
           <Text style={styles.dayLabel}>
-            Day {game.currentDay} {game.nightPhase ? '' : ''}
+            Day {game.currentDay}
           </Text>
           <Pressable style={styles.dayBtn} onPress={nextDay}>
             <Text style={styles.dayBtnText}>Next Day</Text>

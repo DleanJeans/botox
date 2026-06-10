@@ -7,10 +7,9 @@ import RoleIcon from './RoleIcon';
 interface Props {
   role: Role;
   onSelect?: (roleId: string) => void;
-  showNightBadge?: boolean;
 }
 
-export default function RoleCard({ role, onSelect, showNightBadge = false }: Props) {
+export default function RoleCard({ role, onSelect }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -32,12 +31,6 @@ export default function RoleCard({ role, onSelect, showNightBadge = false }: Pro
             {role.team.charAt(0).toUpperCase() + role.team.slice(1)}
           </Text>
         </View>
-        {showNightBadge && role.firstNight !== undefined && (
-          <Text style={styles.nightBadge}>🌙{role.firstNight}</Text>
-        )}
-        {showNightBadge && role.otherNight !== undefined && (
-          <Text style={styles.nightBadge}>🌙{role.otherNight}</Text>
-        )}
       </View>
 
       {(expanded || (!onSelect && expanded)) && (
@@ -65,10 +58,6 @@ const styles = StyleSheet.create({
   info: { flex: 1, marginLeft: 10 },
   name: { color: '#fff', fontSize: 14, fontWeight: '600' },
   team: { fontSize: 11, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 },
-  nightBadge: {
-    fontSize: 11, color: '#818cf8', backgroundColor: 'rgba(129,140,248,0.15)',
-    paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4,
-  },
   details: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#3a3c43' },
   ability: { color: '#ccc', fontSize: 13, lineHeight: 18 },
   reminder: { color: '#888', fontSize: 12, marginTop: 6, fontStyle: 'italic' },

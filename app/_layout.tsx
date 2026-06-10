@@ -82,7 +82,7 @@ export default function RootLayout() {
 
   // Handle browser back — redirect to home on non-tab routes
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
     const onPopState = () => {
       const path = window.location.pathname.replace(/\/$/, '');
       const route = path.split('/')[1] || 'index';

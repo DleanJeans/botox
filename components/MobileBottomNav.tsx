@@ -2,23 +2,20 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Icon from './Icon';
 
-type PanelTab = 'players' | 'roles' | 'night' | 'notes';
+type PanelTab = 'players' | 'roles' | 'notes';
 
 interface MobileBottomNavProps {
   activeTab: PanelTab;
   onTabChange: (tab: PanelTab) => void;
   layout: 'circle' | 'room';
   editMode: boolean;
-  nightPhase: boolean;
   onToggleEdit: () => void;
-  onToggleNight: () => void;
   onToggleLayout: () => void;
 }
 
 const TABS: { key: PanelTab; label: string; iconName: string }[] = [
   { key: 'players', label: 'Players', iconName: 'users' },
   { key: 'roles', label: 'Roles', iconName: 'book' },
-  { key: 'night', label: 'Night', iconName: 'moon' },
   { key: 'notes', label: 'Notes', iconName: 'edit3' },
 ];
 
@@ -27,9 +24,7 @@ export default function MobileBottomNav({
   onTabChange,
   layout,
   editMode,
-  nightPhase,
   onToggleEdit,
-  onToggleNight,
   onToggleLayout,
 }: MobileBottomNavProps) {
   return (
@@ -41,13 +36,6 @@ export default function MobileBottomNav({
           style={[styles.quickBtn, layout === 'room' && styles.quickBtnActive]}
         >
           <Icon name={layout === 'circle' ? 'circle' : 'square'} size={18} color="#ccc" />
-        </Pressable>
-
-        <Pressable
-          onPress={onToggleNight}
-          style={[styles.quickBtn, nightPhase && styles.quickBtnActive]}
-        >
-          <Text style={styles.quickBtnText}>{nightPhase ? '🌙' : '☀️'}</Text>
         </Pressable>
 
         <Pressable

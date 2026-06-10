@@ -29,12 +29,10 @@ interface GameStore {
   setClaimedRole: (playerId: string, roleId: string | null) => void;
   setSuspicion: (playerId: string, level: 0 | 1 | 2 | 3) => void;
   setNotes: (playerId: string, notes: string) => void;
-  addNightTarget: (playerId: string, targetId: string) => void;
   addVoteRecord: (playerId: string, record: VoteRecord) => void;
 
   nextDay: () => void;
   prevDay: () => void;
-  toggleNightPhase: () => void;
   toggleGhostVote: (playerId: string) => void;
 
   setGameNotes: (notes: string) => void;
@@ -81,7 +79,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       layout: 'circle',
       editMode: false,
       currentDay: 1,
-      nightPhase: false,
       gameNotes: '',
       conversations: [],
     };
@@ -115,7 +112,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         claimedRole: null,
         suspicion: 0,
         notes: '',
-        nightTargets: [],
         voteHistory: [],
         defenseTokens: 0,
       };
@@ -257,18 +253,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (result) set(result);
   },
 
-  addNightTarget: (playerId: string, targetId: string) => {
-    const result = updateAndSave(get, game => ({
-      ...game,
-      players: game.players.map(p =>
-        p.id === playerId
-          ? { ...p, nightTargets: [...p.nightTargets, targetId] }
-          : p
-      ),
-    }));
-    if (result) set(result);
-  },
-
   addVoteRecord: (playerId: string, record: VoteRecord) => {
     const result = updateAndSave(get, game => ({
       ...game,
@@ -293,13 +277,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       currentDay: game.currentDay + 1,
-      nightPhase: true,
     }));
-    if (result) set(result);
-  },
-
-  toggleNightPhase: () => {
-    const result = updateAndSave(get, game => ({ ...game, nightPhase: !game.nightPhase }));
     if (result) set(result);
   },
 

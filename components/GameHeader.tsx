@@ -7,13 +7,11 @@ interface GameHeaderProps {
   layout: 'circle' | 'room';
   playerDraggable: boolean;
   roomDraggable: boolean;
-  nightPhase: boolean;
   playerCount: number;
   currentDay: number;
   onToggleLayout: () => void;
   onToggleEdit: () => void;
   onToggleRoomDrag: () => void;
-  onToggleNight: () => void;
   onBack: () => void;
   onAddPlayer: () => void;
 }
@@ -23,13 +21,11 @@ export default function GameHeader({
   layout,
   playerDraggable,
   roomDraggable,
-  nightPhase,
   playerCount,
   currentDay,
   onToggleLayout,
   onToggleEdit,
   onToggleRoomDrag,
-  onToggleNight,
   onBack,
   onAddPlayer,
 }: GameHeaderProps) {
@@ -44,7 +40,6 @@ export default function GameHeader({
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.subtitle}>
             {playerCount} player{playerCount !== 1 ? 's' : ''} · Day {currentDay}
-            <Icon name={nightPhase ? 'moon' : 'sun'} size={14} color={nightPhase ? '#818cf8' : '#eab308'} />
           </Text>
         </View>
       </View>
@@ -58,16 +53,6 @@ export default function GameHeader({
           <Icon name={layout === 'circle' ? 'circle' : 'square'} size={16} color="#ccc" />
           <Text style={styles.actionLabel}>
             {layout === 'circle' ? 'Circle' : 'Room'}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onToggleNight}
-          style={[styles.actionBtn, nightPhase && styles.actionBtnActive]}
-        >
-          <Icon name={nightPhase ? 'moon' : 'sun'} size={16} color={nightPhase ? '#818cf8' : '#eab308'} />
-          <Text style={styles.actionLabel}>
-            {nightPhase ? 'Night' : 'Day'}
           </Text>
         </Pressable>
 
