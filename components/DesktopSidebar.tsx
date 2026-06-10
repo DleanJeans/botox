@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
 	Pressable,
 	ScrollView,
@@ -6,13 +6,13 @@ import {
 	Text,
 	TextInput,
 	View,
-} from "react-native";
+} from 'react-native';
 import { TEAMS } from '../constants';
-import { getRoles, TEAM_COLORS } from "../data/roles";
+import { getRoles, TEAM_COLORS } from '../data/roles';
 import { useGameStore } from '../hooks/useGameStore';
-import type { Game, Player } from "../types";
-import RoleIcon from "./RoleIcon";
-import ScriptSearchPanel from "./ScriptSearchPanel";
+import type { Game, Player } from '../types';
+import RoleIcon from './RoleIcon';
+import ScriptSearchPanel from './ScriptSearchPanel';
 
 type PanelTab = 'players' | 'roles' | 'night' | 'notes' | 'search';
 
@@ -54,11 +54,19 @@ export default function DesktopSidebar({
         {TABS.map(tab => (
           <Pressable
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+            style={[
+              styles.tab,
+              activeTab === tab.key && styles.tabActive,
+            ]}
             onPress={() => onTabChange(tab.key)}
           >
             <Text style={styles.tabIcon}>{tab.icon}</Text>
-            <Text style={[styles.tabLabel, activeTab === tab.key && styles.tabLabelActive]}>
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === tab.key && styles.tabLabelActive,
+              ]}
+            >
               {tab.label}
             </Text>
           </Pressable>
@@ -96,7 +104,7 @@ function PlayersPanel({
   players,
   onPlayerPress,
   onAddPlayer,
-  onRemovePlayer,
+  onRemovePlayer: _onRemovePlayer,
   onToggleAlive,
 }: {
   players: Player[];
@@ -123,20 +131,39 @@ function PlayersPanel({
                 style={styles.playerInfo}
                 onPress={() => onPlayerPress(player.id)}
               >
-                <View style={[styles.playerDot, { backgroundColor: player.isAlive ? '#22c55e' : '#666' }]} />
+                <View
+                  style={[
+                    styles.playerDot,
+                    {
+                      backgroundColor: player.isAlive ? '#22c55e' : '#666',
+                    },
+                  ]}
+                />
                 <View style={styles.playerMeta}>
-                  <Text style={[styles.playerName, !player.isAlive && styles.deadName]}>
+                  <Text
+                    style={[
+                      styles.playerName,
+                      !player.isAlive && styles.deadName,
+                    ]}
+                  >
                     {i + 1}. {player.name}
                   </Text>
                   <Text style={styles.playerSub}>
                     {player.isAlive ? '❤️' : '💀'}
                     {player.guessedRole ? ` · guess` : ''}
-                    {player.suspicion > 0 ? ` · ${'🟢🟡🔴'[player.suspicion - 1]}` : ''}
+                    {player.suspicion > 0
+                      ? ` · ${'🟢🟡🔴'[player.suspicion - 1]}`
+                      : ''}
                   </Text>
                 </View>
               </Pressable>
-              <Pressable onPress={() => onToggleAlive(player.id)} style={styles.toggleBtn}>
-                <Text style={styles.toggleBtnText}>{player.isAlive ? '💀' : '❤️'}</Text>
+              <Pressable
+                onPress={() => onToggleAlive(player.id)}
+                style={styles.toggleBtn}
+              >
+                <Text style={styles.toggleBtnText}>
+                  {player.isAlive ? '💀' : '❤️'}
+                </Text>
               </Pressable>
             </View>
           ))
@@ -148,16 +175,15 @@ function PlayersPanel({
 
 // ─── Roles Panel ────────────────────────────────────────────────
 function RolesPanel() {
-  
-  const rolesByTeam = TEAMS.map((team) => ({
+  const rolesByTeam = TEAMS.map(team => ({
 			team,
-			roles: Object.values(getRoles()).filter((r) => r.team === team),
+    roles: Object.values(getRoles()).filter(r => r.team === team),
 		}));
   const [search, setSearch] = useState('');
 
   const filtered = search.trim()
 			? Object.values(getRoles()).filter(
-					(r) =>
+        r =>
 						r.name.toLowerCase().includes(search.toLowerCase()) ||
 						r.ability.toLowerCase().includes(search.toLowerCase()),
 				)
@@ -179,10 +205,22 @@ function RolesPanel() {
         {(filtered || rolesByTeam.flatMap(t => t.roles)).map(role => (
           <View key={role.id} style={styles.roleCard}>
             <View style={styles.roleCardHeader}>
-              <RoleIcon roleId={role.id} team={role.team} size={28} showBorder={false} />
+              <RoleIcon
+                roleId={role.id}
+                team={role.team}
+                size={28}
+                showBorder={false}
+              />
               <View style={styles.roleCardMeta}>
                 <Text style={styles.roleName}>{role.name}</Text>
-                <Text style={[styles.roleTeam, { color: TEAM_COLORS[role.team] }]}>
+                <Text
+                  style={[
+                    styles.roleTeam,
+                    {
+                      color: TEAM_COLORS[role.team],
+                    },
+                  ]}
+                >
                   {role.team}
                   {role.firstNight ? ` · Night ${role.firstNight}` : ''}
                   {role.otherNight ? ` · Night ${role.otherNight}` : ''}
@@ -192,7 +230,11 @@ function RolesPanel() {
             <Text style={styles.roleAbility}>{role.ability}</Text>
           </View>
         ))}
-        <View style={{ height: 20 }} />
+        <View
+          style={{
+            height: 20,
+          }}
+        />
       </ScrollView>
     </View>
   );
@@ -202,8 +244,8 @@ function RolesPanel() {
 function NightPanel({ game }: { game: Game }) {
   // Collect all roles that have night actions
 		const nightRoles = game.players
-			.filter((p) => p.guessedRole && getRoles()[p.guessedRole])
-			.map((p) => ({
+    .filter(p => p.guessedRole && getRoles()[p.guessedRole])
+    .map(p => ({
 				playerName: p.name,
 				role: getRoles()[p.guessedRole!],
 			}))
@@ -223,17 +265,14 @@ function NightPanel({ game }: { game: Game }) {
   return (
     <View style={styles.panelContent}>
       <View style={styles.panelHeader}>
-        <Text style={styles.panelTitle}>
-          🌙 Night Order
-        </Text>
+        <Text style={styles.panelTitle}>🌙 Night Order</Text>
       </View>
-      <Text style={styles.dayText}>
-        Day {game.currentDay}
-      </Text>
+      <Text style={styles.dayText}>Day {game.currentDay}</Text>
       <ScrollView showsVerticalScrollIndicator={false}>
         {nightRoles.length === 0 ? (
           <Text style={styles.emptyText}>
-            No night-active roles detected. Set role guesses for your players to see the night order.
+            No night-active roles detected. Set role guesses for your players to
+            see the night order.
           </Text>
         ) : (
           nightRoles.map((item, i) => (
@@ -243,18 +282,33 @@ function NightPanel({ game }: { game: Game }) {
               </View>
               <View style={styles.nightInfo}>
                 <Text style={styles.nightPlayer}>{item.playerName}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                  <RoleIcon roleId={item.role.id} team={item.role.team} size={16} showBorder={false} />
-                  <Text style={styles.nightRole}>
-                    {item.role.name}
-                  </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <RoleIcon
+                    roleId={item.role.id}
+                    team={item.role.team}
+                    size={16}
+                    showBorder={false}
+                  />
+                  <Text style={styles.nightRole}>{item.role.name}</Text>
                 </View>
               </View>
-              <Text style={styles.nightAbility}>{item.role.ability.substring(0, 60)}</Text>
+              <Text style={styles.nightAbility}>
+                {item.role.ability.substring(0, 60)}
+              </Text>
             </View>
           ))
         )}
-        <View style={{ height: 20 }} />
+        <View
+          style={{
+            height: 20,
+          }}
+        />
       </ScrollView>
     </View>
   );

@@ -1,15 +1,26 @@
 import React from 'react';
-import { Player } from '../types';
+import type { Player } from '../types';
 
 interface CircleLinesProps {
   players: Player[];
-  positions: Record<string, { x: number; y: number }>;
+  positions: Record<
+    string,
+    {
+      x: number;
+      y: number;
+    }
+  >;
   width: number;
   height: number;
 }
 
 // SVG line drawing — works on react-native-web which maps SVG to HTML elements
-export default function CircleLines({ players, positions, width, height }: CircleLinesProps) {
+export default function CircleLines({
+  players,
+  positions,
+  width,
+  height,
+}: CircleLinesProps) {
   if (players.length < 3) return null;
 
   const lines = [];
@@ -18,7 +29,12 @@ export default function CircleLines({ players, positions, width, height }: Circl
     const p1 = positions[players[i].id];
     const p2 = positions[players[j].id];
     if (!p1 || !p2) continue;
-    lines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+    lines.push({
+      x1: p1.x,
+      y1: p1.y,
+      x2: p2.x,
+      y2: p2.y,
+    });
   }
 
   const ns = 'http://www.w3.org/2000/svg';
@@ -62,9 +78,12 @@ export default function CircleLines({ players, positions, width, height }: Circl
       pointerEvents: 'none' as const,
     },
     dangerouslySetInnerHTML: {
-      __html: `<svg xmlns="${ns}" width="${width}" height="${height}" style="position:absolute;top:0;left:0;width:${width}px;height:${height}px;pointer-events:none">${lines.map(l =>
-        `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="rgba(255,255,255,0.07)" stroke-width="1.5" />`
-      ).join('')}</svg>`,
+      __html: `<svg xmlns="${ns}" width="${width}" height="${height}" style="position:absolute;top:0;left:0;width:${width}px;height:${height}px;pointer-events:none">${lines
+        .map(
+          l =>
+            `<line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}" stroke="rgba(255,255,255,0.07)" stroke-width="1.5" />`,
+        )
+        .join('')}</svg>`,
     },
   });
 }

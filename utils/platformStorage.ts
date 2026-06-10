@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const isWeb = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+const isWeb =
+  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
 // Synchronous cache populated from AsyncStorage on init (native only)
 let cache: Record<string, string | null> = {};
@@ -24,7 +25,10 @@ export function platformGetItem(key: string): string | null {
   return cache[key] ?? null;
 }
 
-export async function platformSetItem(key: string, value: string): Promise<void> {
+export async function platformSetItem(
+  key: string,
+  value: string,
+): Promise<void> {
   cache[key] = value;
   if (isWeb) {
     localStorage.setItem(key, value);

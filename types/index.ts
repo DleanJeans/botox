@@ -1,4 +1,10 @@
-export type Team = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveller';
+export type Team =
+  | 'townsfolk'
+  | 'outsider'
+  | 'minion'
+  | 'demon'
+  | 'fabled'
+  | 'traveller';
 
 export interface Role {
   id: string;
@@ -18,31 +24,34 @@ export interface Player {
   isGhostVote: boolean;
 
   // Position in the layout (circle or room)
-  position: { x: number; y: number };
+  position: {
+    x: number;
+    y: number;
+  };
   // Whether position was manually dragged (vs auto-layout)
   positionLocked: boolean;
 
   // Detective board
-  guessedRole: string | null;       // role ID the player thinks this person is
-  claimedRole: string | null;       // what they claimed to be
-  suspicion: 0 | 1 | 2 | 3;        // 0=none, 1=low, 2=medium, 3=high
+  guessedRole: string | null; // role ID the player thinks this person is
+  claimedRole: string | null; // what they claimed to be
+  suspicion: 0 | 1 | 2 | 3; // 0=none, 1=low, 2=medium, 3=high
   notes: string;
   voteHistory: VoteRecord[];
-  defenseTokens: number;            // leftover defense tokens (for some scripts)
+  defenseTokens: number; // leftover defense tokens (for some scripts)
 }
 
 export interface VoteRecord {
   day: number;
-  targetId: string;                 // who they voted for
+  targetId: string; // who they voted for
   guilty: boolean;
 }
 
 export interface Conversation {
   id: string;
   day: number;
-  participants: string[];           // player IDs involved
-  initiatorId: string;              // who started the conversation
-  notes: string;                    // what was observed / discussed
+  participants: string[]; // player IDs involved
+  initiatorId: string; // who started the conversation
+  notes: string; // what was observed / discussed
   timestamp: number;
 }
 
@@ -50,7 +59,7 @@ export interface Game {
   id: string;
   name: string;
   createdAt: number;
-  scriptId: string | null;          // null = no script / custom
+  scriptId: string | null; // null = no script / custom
   players: Player[];
   layout: 'circle' | 'room';
   editMode: boolean;
@@ -62,7 +71,7 @@ export interface Game {
 export interface Script {
   id: string;
   name: string;
-  roles: string[];                  // role IDs
+  roles: string[]; // role IDs
 }
 
 // Drag item type for gesture handler

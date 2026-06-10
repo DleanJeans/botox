@@ -34,10 +34,11 @@ export default function RoleBrowser({
   const [search, setSearch] = useState('');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
 
-
   const scriptRoleIds = useMemo(
     () => (scriptId ? getScriptRoles(scriptId) : []),
-    [scriptId]
+    [
+      scriptId,
+    ],
   );
 
   const filteredRoles = useMemo(() => {
@@ -60,7 +61,7 @@ export default function RoleBrowser({
         r =>
           r.name.toLowerCase().includes(q) ||
           r.ability.toLowerCase().includes(q) ||
-          r.team.toLowerCase().includes(q)
+          r.team.toLowerCase().includes(q),
       );
     }
 
@@ -73,12 +74,17 @@ export default function RoleBrowser({
     });
 
     return roles;
-  }, [viewMode, scriptRoleIds, selectedTeam, search]);
+  }, [
+    viewMode,
+    scriptRoleIds,
+    selectedTeam,
+    search,
+  ]);
 
   const roleTeams = useMemo(() => {
     const teams = new Set(Object.values(getRoles()).map(r => r.team));
     return Array.from(teams).sort(
-      (a, b) => (TEAM_ORDER[a] ?? 99) - (TEAM_ORDER[b] ?? 99)
+      (a, b) => (TEAM_ORDER[a] ?? 99) - (TEAM_ORDER[b] ?? 99),
     );
   }, []);
 
@@ -92,7 +98,10 @@ export default function RoleBrowser({
       .filter(r => r.otherNight !== undefined)
       .sort((a, b) => (a.otherNight ?? 0) - (b.otherNight ?? 0));
 
-    return { firstNight, otherNight };
+    return {
+      firstNight,
+      otherNight,
+    };
   }, []);
 
   return (
@@ -110,15 +119,30 @@ export default function RoleBrowser({
 
         {/* View mode tabs */}
         <View style={styles.tabRow}>
-          {([
-            { key: 'all' as const, label: 'All' },
-            { key: 'script' as const, label: 'Script' },
-            { key: 'search' as const, label: 'Search' },
-            { key: 'night' as const, label: 'Night Order' },
-          ]).map(tab => (
+          {[
+            {
+              key: 'all' as const,
+              label: 'All',
+            },
+            {
+              key: 'script' as const,
+              label: 'Script',
+            },
+            {
+              key: 'search' as const,
+              label: 'Search',
+            },
+            {
+              key: 'night' as const,
+              label: 'Night Order',
+            },
+          ].map(tab => (
             <Pressable
               key={tab.key}
-              style={[styles.tab, viewMode === tab.key && styles.tabActive]}
+              style={[
+                styles.tab,
+                viewMode === tab.key && styles.tabActive,
+              ]}
               onPress={() => setViewMode(tab.key)}
             >
               <Text
@@ -146,7 +170,11 @@ export default function RoleBrowser({
       </View>
 
       {viewMode === 'search' ? (
-        <View style={{ flex: 1 }}>
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
           <ScriptSearchPanel
             currentScriptId={scriptId}
             onImportScript={onImportScript || (() => {})}
@@ -154,110 +182,124 @@ export default function RoleBrowser({
           />
         </View>
       ) : (
-      <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-        {/* Night Order View */}
-        {viewMode === 'night' ? (
-          <>
-            {nightRoles.firstNight.length > 0 && (
-              <View style={styles.nightSection}>
-                <Text style={styles.nightSectionTitle}>🌙 First Night</Text>
-                {nightRoles.firstNight.map(role => (
-                  <View key={role.id} style={styles.nightRow}>
-                    <View style={styles.nightNum}>
-                      <Text style={styles.nightNumText}>{role.firstNight}</Text>
+        <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+          {/* Night Order View */}
+          {viewMode === 'night' ? (
+            <>
+              {nightRoles.firstNight.length > 0 && (
+                <View style={styles.nightSection}>
+                  <Text style={styles.nightSectionTitle}>🌙 First Night</Text>
+                  {nightRoles.firstNight.map(role => (
+                    <View key={role.id} style={styles.nightRow}>
+                      <View style={styles.nightNum}>
+                        <Text style={styles.nightNumText}>
+                          {role.firstNight}
+                        </Text>
+                      </View>
+                      <RoleIcon
+                        roleId={role.id}
+                        team={role.team}
+                        size={20}
+                        showBorder={false}
+                      />
+                      <Text style={styles.nightRoleName}>{role.name}</Text>
                     </View>
-                    <RoleIcon roleId={role.id} team={role.team} size={20} showBorder={false} />
-                    <Text style={styles.nightRoleName}>{role.name}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+                  ))}
+                </View>
+              )}
 
-            {nightRoles.otherNight.length > 0 && (
-              <View style={styles.nightSection}>
-                <Text style={styles.nightSectionTitle}>🌙 Other Nights</Text>
-                {nightRoles.otherNight.map(role => (
-                  <View key={role.id} style={styles.nightRow}>
-                    <View style={styles.nightNum}>
-                      <Text style={styles.nightNumText}>{role.otherNight}</Text>
+              {nightRoles.otherNight.length > 0 && (
+                <View style={styles.nightSection}>
+                  <Text style={styles.nightSectionTitle}>🌙 Other Nights</Text>
+                  {nightRoles.otherNight.map(role => (
+                    <View key={role.id} style={styles.nightRow}>
+                      <View style={styles.nightNum}>
+                        <Text style={styles.nightNumText}>
+                          {role.otherNight}
+                        </Text>
+                      </View>
+                      <RoleIcon
+                        roleId={role.id}
+                        team={role.team}
+                        size={20}
+                        showBorder={false}
+                      />
+                      <Text style={styles.nightRoleName}>{role.name}</Text>
                     </View>
-                    <RoleIcon roleId={role.id} team={role.team} size={20} showBorder={false} />
-                    <Text style={styles.nightRoleName}>{role.name}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Team filter chips */}
-            <View style={styles.teamFilterRow}>
-              <Pressable
-                style={[
-                  styles.teamChip,
-                  selectedTeam === null && styles.teamChipActive,
-                ]}
-                onPress={() => setSelectedTeam(null)}
-              >
-                <Text
-                  style={[
-                    styles.teamChipText,
-                    selectedTeam === null && styles.teamChipTextActive,
-                  ]}
-                >
-                  All
-                </Text>
-              </Pressable>
-              {roleTeams.map(team => (
+                  ))}
+                </View>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Team filter chips */}
+              <View style={styles.teamFilterRow}>
                 <Pressable
-                  key={team}
                   style={[
                     styles.teamChip,
-                    selectedTeam === team && {
-                      borderColor: TEAM_COLORS[team],
-                      backgroundColor: TEAM_COLORS[team] + '22',
-                    },
+                    selectedTeam === null && styles.teamChipActive,
                   ]}
-                  onPress={() =>
-                    setSelectedTeam(selectedTeam === team ? null : team)
-                  }
+                  onPress={() => setSelectedTeam(null)}
                 >
                   <Text
                     style={[
                       styles.teamChipText,
-                      selectedTeam === team && {
-                        color: TEAM_COLORS[team],
-                        fontWeight: '700',
-                      },
+                      selectedTeam === null && styles.teamChipTextActive,
                     ]}
                   >
-                    {team.charAt(0).toUpperCase() + team.slice(1)}
+                    All
                   </Text>
                 </Pressable>
-              ))}
-            </View>
-
-            {/* Role cards */}
-            {filteredRoles.map(role => (
-              <RoleCard
-                key={role.id}
-                role={role}
-                onSelect={onSelectRole || undefined}
-              />
-            ))}
-
-            {filteredRoles.length === 0 && (
-              <View style={styles.empty}>
-                <Text style={styles.emptyText}>
-                  {scriptId && viewMode === 'script'
-                    ? 'No roles found for this script'
-                    : 'No roles match your search'}
-                </Text>
+                {roleTeams.map(team => (
+                  <Pressable
+                    key={team}
+                    style={[
+                      styles.teamChip,
+                      selectedTeam === team && {
+                        borderColor: TEAM_COLORS[team],
+                        backgroundColor: `${TEAM_COLORS[team]}22`,
+                      },
+                    ]}
+                    onPress={() =>
+                      setSelectedTeam(selectedTeam === team ? null : team)
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.teamChipText,
+                        selectedTeam === team && {
+                          color: TEAM_COLORS[team],
+                          fontWeight: '700',
+                        },
+                      ]}
+                    >
+                      {team.charAt(0).toUpperCase() + team.slice(1)}
+                    </Text>
+                  </Pressable>
+                ))}
               </View>
-            )}
-          </>
-        )}
-      </ScrollView>
+
+              {/* Role cards */}
+              {filteredRoles.map(role => (
+                <RoleCard
+                  key={role.id}
+                  role={role}
+                  onSelect={onSelectRole || undefined}
+                />
+              ))}
+
+              {filteredRoles.length === 0 && (
+                <View style={styles.empty}>
+                  <Text style={styles.emptyText}>
+                    {scriptId && viewMode === 'script'
+                      ? 'No roles found for this script'
+                      : 'No roles match your search'}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+        </ScrollView>
       )}
     </View>
   );

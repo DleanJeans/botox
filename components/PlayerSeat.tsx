@@ -1,12 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  PanResponder,
-  Pressable,
-} from 'react-native';
-import { Player } from '../types';
+import { useRef } from 'react';
+import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { Player } from '../types';
 
 interface PlayerSeatProps {
   player: Player;
@@ -20,15 +14,34 @@ interface PlayerSeatProps {
   onDragEnd: () => void;
 }
 
-const AVATAR_COLORS = ['#3492ea','#22c55e','#eab308','#ef4444','#c084fc','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16'];
+const AVATAR_COLORS = [
+  '#3492ea',
+  '#22c55e',
+  '#eab308',
+  '#ef4444',
+  '#c084fc',
+  '#ec4899',
+  '#14b8a6',
+  '#f97316',
+  '#6366f1',
+  '#84cc16',
+];
 
 function getInitials(name: string): string {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+  return (
+    name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || '?'
+  );
 }
 
 function getAvatarColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -44,10 +57,23 @@ export default function PlayerSeat({
   onDragEnd,
 }: PlayerSeatProps) {
   // Use refs to keep latest callbacks without recreating PanResponder
-  const callbacks = useRef({ onDragStart, onDragMove, onDragEnd, editMode });
-  callbacks.current = { onDragStart, onDragMove, onDragEnd, editMode };
+  const callbacks = useRef({
+    onDragStart,
+    onDragMove,
+    onDragEnd,
+    editMode,
+  });
+  callbacks.current = {
+    onDragStart,
+    onDragMove,
+    onDragEnd,
+    editMode,
+  };
 
-  const dragOffset = useRef({ x: 0, y: 0 });
+  const dragOffset = useRef({
+    x: 0,
+    y: 0,
+  });
 
   const panResponder = useRef(
     PanResponder.create({
@@ -55,7 +81,7 @@ export default function PlayerSeat({
       onStartShouldSetPanResponderCapture: () => callbacks.current.editMode,
       onMoveShouldSetPanResponder: () => callbacks.current.editMode,
       onMoveShouldSetPanResponderCapture: () => callbacks.current.editMode,
-      onPanResponderGrant: (evt) => {
+      onPanResponderGrant: evt => {
         const { pageX, pageY } = evt.nativeEvent;
         dragOffset.current = {
           x: pageX - player.position.x + panX,
@@ -63,11 +89,11 @@ export default function PlayerSeat({
         };
         callbacks.current.onDragStart();
       },
-      onPanResponderMove: (evt) => {
+      onPanResponderMove: evt => {
         const { pageX, pageY } = evt.nativeEvent;
         callbacks.current.onDragMove(
           pageX - dragOffset.current.x - panX,
-          pageY - dragOffset.current.y - panY
+          pageY - dragOffset.current.y - panY,
         );
       },
       onPanResponderRelease: () => {
@@ -76,10 +102,15 @@ export default function PlayerSeat({
       onPanResponderTerminate: () => {
         callbacks.current.onDragEnd();
       },
-    })
+    }),
   ).current;
 
-  const suspicionColors = ['#555', '#22c55e', '#eab308', '#ef4444'];
+  const suspicionColors = [
+    '#555',
+    '#22c55e',
+    '#eab308',
+    '#ef4444',
+  ];
 
   return (
     <View
@@ -133,14 +164,24 @@ export default function PlayerSeat({
             },
           ]}
         >
-          <Text style={[styles.initials, { fontSize: size * 0.18 }]}>
+          <Text
+            style={[
+              styles.initials,
+              {
+                fontSize: size * 0.18,
+              },
+            ]}
+          >
             {getInitials(player.name)}
           </Text>
         </View>
 
         {/* Player name */}
         <Text
-          style={[styles.name, !player.isAlive && styles.dead]}
+          style={[
+            styles.name,
+            !player.isAlive && styles.dead,
+          ]}
           numberOfLines={1}
         >
           {player.name}
@@ -149,7 +190,11 @@ export default function PlayerSeat({
         {/* Suspicion indicator */}
         {player.suspicion > 0 && (
           <Text style={styles.suspicionBadge}>
-            {player.suspicion === 1 ? '🟢' : player.suspicion === 2 ? '🟡' : '🔴'}
+            {player.suspicion === 1
+              ? '🟢'
+              : player.suspicion === 2
+                ? '🟡'
+                : '🔴'}
           </Text>
         )}
 

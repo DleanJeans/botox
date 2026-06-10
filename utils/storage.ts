@@ -1,4 +1,4 @@
-import { Game, Friend, SavedScript } from '../types';
+import type { Friend, Game, SavedScript } from '../types';
 import { platformGetItem, platformSetItem } from './platformStorage';
 
 const STORAGE_KEY = 'grim-player-games';
@@ -63,7 +63,9 @@ export function loadFriends(): Friend[] {
   try {
     const raw = platformGetItem(FRIENDS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 export function saveFriend(friend: Friend): Friend[] {
@@ -87,7 +89,9 @@ export function loadSavedScripts(): SavedScript[] {
   try {
     const raw = platformGetItem(SAVED_SCRIPTS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 export function saveScript(script: SavedScript): SavedScript[] {

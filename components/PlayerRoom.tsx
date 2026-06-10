@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, useWindowDimensions, PanResponder } from 'react-native';
-import { Game } from '../types';
+import { useEffect, useRef, useState } from 'react';
+import {
+  PanResponder,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import type { Game } from '../types';
 import { calculateRoomPositions } from '../utils/layout';
 import PlayerSeat from './PlayerSeat';
 
@@ -22,25 +28,45 @@ export default function PlayerRoom({
 }: PlayerRoomProps) {
   const { width, height } = useWindowDimensions();
   const seatSize = Math.min(80, Math.min(width, height) * 0.16);
-  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [positions, setPositions] = useState<
+    Record<
+      string,
+      {
+        x: number;
+        y: number;
+      }
+    >
+  >({});
   const initialized = useRef(false);
 
   // ── Canvas pan offset ──
   const STORAGE_KEY = 'grim-player-room-pan';
-  const loadPan = (): { x: number; y: number } => {
+  const loadPan = (): {
+    x: number;
+    y: number;
+  } => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw);
     } catch {}
-    return { x: -300, y: 0 };
+    return {
+      x: -300,
+      y: 0,
+    };
   };
   const savePan = (pos: { x: number; y: number }) => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pos));
+    } catch {}
   };
 
   const initialPan = useRef(loadPan());
-  const panOffset = useRef({ ...initialPan.current });
-  const [pan, setPan] = useState({ ...initialPan.current });
+  const panOffset = useRef({
+    ...initialPan.current,
+  });
+  const [pan, setPan] = useState({
+    ...initialPan.current,
+  });
   const dragRef = useRef(dragMode);
   dragRef.current = dragMode;
 
@@ -59,22 +85,39 @@ export default function PlayerRoom({
         panOffset.current.x += gs.dx;
         panOffset.current.y += gs.dy;
         savePan(panOffset.current);
-        setPan({ ...panOffset.current });
+        setPan({
+          ...panOffset.current,
+        });
       },
       onPanResponderTerminate: () => {
         savePan(panOffset.current);
-        setPan({ ...panOffset.current });
+        setPan({
+          ...panOffset.current,
+        });
       },
-    })
+    }),
   ).current;
 
   // Calculate room positions
   useEffect(() => {
     if (game.players.length === 0) return;
-    const roomPositions = calculateRoomPositions(game.players, width, height, seatSize);
-    const newPositions: Record<string, { x: number; y: number }> = {};
+    const roomPositions = calculateRoomPositions(
+      game.players,
+      width,
+      height,
+      seatSize,
+    );
+    const newPositions: Record<
+      string,
+      {
+        x: number;
+        y: number;
+      }
+    > = {};
     game.players.forEach((player, i) => {
-      newPositions[player.id] = player.positionLocked ? player.position : roomPositions[i];
+      newPositions[player.id] = player.positionLocked
+        ? player.position
+        : roomPositions[i];
     });
     setPositions(newPositions);
 
@@ -86,13 +129,23 @@ export default function PlayerRoom({
         }
       });
     }
-  }, [game.players.length, width, height]);
+  }, [
+    game.players.length,
+    width,
+    height,
+    onUpdatePosition,
+    seatSize,
+    game.players.forEach,
+    game.players,
+  ]);
 
   if (game.players.length === 0) {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyText}>Add players to the game</Text>
-        <Text style={styles.emptySubtext}>They'll be seated along the walls</Text>
+        <Text style={styles.emptySubtext}>
+          They'll be seated along the walls
+        </Text>
       </View>
     );
   }
@@ -105,8 +158,12 @@ export default function PlayerRoom({
           styles.canvas,
           {
             transform: [
-              { translateX: pan.x },
-              { translateY: pan.y },
+              {
+                translateX: pan.x,
+              },
+              {
+                translateY: pan.y,
+              },
             ],
           },
         ]}
@@ -137,14 +194,23 @@ export default function PlayerRoom({
           return (
             <PlayerSeat
               key={player.id}
-              player={{ ...player, position: pos }}
+              player={{
+                ...player,
+                position: pos,
+              }}
               size={seatSize}
               editMode={game.editMode}
               onPress={() => onPlayerPress(player.id)}
               onDragStart={() => {}}
               onDragMove={(x, y) => {
                 onUpdatePosition(player.id, x, y);
-                setPositions(prev => ({ ...prev, [player.id]: { x, y } }));
+                setPositions(prev => ({
+                  ...prev,
+                  [player.id]: {
+                    x,
+                    y,
+                  },
+                }));
               }}
               onDragEnd={() => onLockPosition(player.id)}
             />
@@ -189,19 +255,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   wallTop: {
-    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   wallBottom: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   wallLeft: {
-    position: 'absolute', top: 0, left: 0, width: 2, bottom: 0,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 2,
+    bottom: 0,
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   wallRight: {
-    position: 'absolute', top: 0, right: 0, width: 2, bottom: 0,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 2,
+    bottom: 0,
     backgroundColor: 'rgba(255,255,255,0.08)',
   },
   roomLabel: {

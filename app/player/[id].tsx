@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGameStore } from '../../hooks/useGameStore';
 
 export default function PlayerDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{
+    id: string;
+  }>();
   const games = useGameStore(s => s.games);
   const currentGameId = useGameStore(s => s.currentGameId);
 
@@ -34,9 +35,7 @@ export default function PlayerDetailScreen() {
         {player.claimedRole && (
           <Text style={styles.info}>Claims: {player.claimedRole}</Text>
         )}
-        {player.notes ? (
-          <Text style={styles.notes}>{player.notes}</Text>
-        ) : null}
+        {player.notes ? <Text style={styles.notes}>{player.notes}</Text> : null}
       </View>
     </SafeAreaView>
   );

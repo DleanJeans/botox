@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Text, View, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { getRoleIconUrl, getTeamEmoji } from '../data/roleIcons';
 import { TEAM_COLORS } from '../data/roles';
 
@@ -39,7 +39,14 @@ export default function RoleIcon({
           },
         ]}
       >
-        <Text style={[styles.fallbackText, { fontSize: size * 0.45 }]}>
+        <Text
+          style={[
+            styles.fallbackText,
+            {
+              fontSize: size * 0.45,
+            },
+          ]}
+        >
           {getTeamEmoji(team)}
         </Text>
       </View>
@@ -70,14 +77,27 @@ export default function RoleIcon({
             },
           ]}
         >
-          <Text style={[styles.skeletonText, { fontSize: size * 0.35 }]}>
+          <Text
+            style={[
+              styles.skeletonText,
+              {
+                fontSize: size * 0.35,
+              },
+            ]}
+          >
             {getTeamEmoji(team)}
           </Text>
         </View>
       )}
       <Image
-        source={{ uri: iconUrl }}
-        style={{ width: size, height: size, opacity: loaded ? 1 : 0 }}
+        source={{
+          uri: iconUrl,
+        }}
+        style={{
+          width: size,
+          height: size,
+          opacity: loaded ? 1 : 0,
+        }}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
         resizeMode="contain"

@@ -1,20 +1,24 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  TextInput,
   Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { Conversation, Player } from '../types';
+import type { Conversation, Player } from '../types';
 
 interface ConversationPanelProps {
   conversations: Conversation[];
   players: Player[];
   currentDay: number;
-  onAddConversation: (participants: string[], initiatorId: string, notes: string) => void;
+  onAddConversation: (
+    participants: string[],
+    initiatorId: string,
+    notes: string,
+  ) => void;
   onUpdateNotes: (convId: string, notes: string) => void;
   onDeleteConversation: (convId: string) => void;
 }
@@ -37,15 +41,17 @@ export default function ConversationPanel({
   const days = useMemo(() => {
     const r = new Set(conversations.map(c => c.day));
     return Array.from(r).sort((a, b) => b - a);
-  }, [conversations]);
+  }, [
+    conversations,
+  ]);
 
   const filteredConversations = filterDay
     ? conversations.filter(c => c.day === filterDay)
     : conversations;
 
-  const sortedConversations = [...filteredConversations].sort(
-    (a, b) => b.timestamp - a.timestamp
-  );
+  const sortedConversations = [
+    ...filteredConversations,
+  ].sort((a, b) => b.timestamp - a.timestamp);
 
   const handleStartConversation = () => {
     if (participants.length < 2) return;
@@ -60,7 +66,10 @@ export default function ConversationPanel({
     setParticipants(prev =>
       prev.includes(playerId)
         ? prev.filter(id => id !== playerId)
-        : [...prev, playerId]
+        : [
+            ...prev,
+            playerId,
+          ],
     );
   };
 
@@ -96,20 +105,36 @@ export default function ConversationPanel({
       {days.length > 1 && (
         <View style={styles.filterRow}>
           <Pressable
-            style={[styles.filterChip, filterDay === null && styles.filterChipActive]}
+            style={[
+              styles.filterChip,
+              filterDay === null && styles.filterChipActive,
+            ]}
             onPress={() => setFilterDay(null)}
           >
-            <Text style={[styles.filterChipText, filterDay === null && styles.filterChipTextActive]}>
+            <Text
+              style={[
+                styles.filterChipText,
+                filterDay === null && styles.filterChipTextActive,
+              ]}
+            >
               All
             </Text>
           </Pressable>
           {days.map(r => (
             <Pressable
               key={r}
-              style={[styles.filterChip, filterDay === r && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                filterDay === r && styles.filterChipActive,
+              ]}
               onPress={() => setFilterDay(r)}
             >
-              <Text style={[styles.filterChipText, filterDay === r && styles.filterChipTextActive]}>
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filterDay === r && styles.filterChipTextActive,
+                ]}
+              >
                 R{r}
               </Text>
             </Pressable>
@@ -166,17 +191,19 @@ export default function ConversationPanel({
                   onBlur={() => setEditingConv(null)}
                   autoFocus
                 />
+              ) : conv.notes ? (
+                <Text style={styles.notesText}>{conv.notes}</Text>
               ) : (
-                conv.notes ? (
-                  <Text style={styles.notesText}>{conv.notes}</Text>
-                ) : (
-                  <Text style={styles.notesPlaceholder}>Tap ✏️ to add notes</Text>
-                )
+                <Text style={styles.notesPlaceholder}>Tap ✏️ to add notes</Text>
               )}
             </View>
           ))
         )}
-        <View style={{ height: 20 }} />
+        <View
+          style={{
+            height: 20,
+          }}
+        />
       </ScrollView>
 
       {/* Add Conversation Modal */}
@@ -200,7 +227,8 @@ export default function ConversationPanel({
                   onPress={() => toggleParticipant(player.id)}
                 >
                   <Text style={styles.playerChipText}>
-                    {!player.isAlive ? '💀 ' : ''}{player.name}
+                    {!player.isAlive ? '💀 ' : ''}
+                    {player.name}
                   </Text>
                 </Pressable>
               ))}

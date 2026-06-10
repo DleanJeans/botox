@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from './Icon';
 
 type PanelTab = 'players' | 'roles' | 'notes';
@@ -13,10 +12,26 @@ interface MobileBottomNavProps {
   onToggleLayout: () => void;
 }
 
-const TABS: { key: PanelTab; label: string; iconName: string }[] = [
-  { key: 'players', label: 'Players', iconName: 'users' },
-  { key: 'roles', label: 'Roles', iconName: 'book' },
-  { key: 'notes', label: 'Notes', iconName: 'edit3' },
+const TABS: {
+  key: PanelTab;
+  label: string;
+  iconName: string;
+}[] = [
+  {
+    key: 'players',
+    label: 'Players',
+    iconName: 'users',
+  },
+  {
+    key: 'roles',
+    label: 'Roles',
+    iconName: 'book',
+  },
+  {
+    key: 'notes',
+    label: 'Notes',
+    iconName: 'edit3',
+  },
 ];
 
 export default function MobileBottomNav({
@@ -33,14 +48,24 @@ export default function MobileBottomNav({
       <View style={styles.quickActions}>
         <Pressable
           onPress={onToggleLayout}
-          style={[styles.quickBtn, layout === 'room' && styles.quickBtnActive]}
+          style={[
+            styles.quickBtn,
+            layout === 'room' && styles.quickBtnActive,
+          ]}
         >
-          <Icon name={layout === 'circle' ? 'circle' : 'square'} size={18} color="#ccc" />
+          <Icon
+            name={layout === 'circle' ? 'circle' : 'square'}
+            size={18}
+            color="#ccc"
+          />
         </Pressable>
 
         <Pressable
           onPress={onToggleEdit}
-          style={[styles.quickBtn, editMode && styles.editBtnActive]}
+          style={[
+            styles.quickBtn,
+            editMode && styles.editBtnActive,
+          ]}
         >
           <Text style={styles.quickBtnText}>✏️</Text>
           {editMode && <Text style={styles.editLabel}>EDIT</Text>}
@@ -52,11 +77,23 @@ export default function MobileBottomNav({
         {TABS.map(tab => (
           <Pressable
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+            style={[
+              styles.tab,
+              activeTab === tab.key && styles.tabActive,
+            ]}
             onPress={() => onTabChange(tab.key)}
           >
-            <Icon name={tab.iconName} size={20} color={activeTab === tab.key ? '#fcb93c' : '#888'} />
-            <Text style={[styles.tabLabel, activeTab === tab.key && styles.tabLabelActive]}>
+            <Icon
+              name={tab.iconName}
+              size={20}
+              color={activeTab === tab.key ? '#fcb93c' : '#888'}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === tab.key && styles.tabLabelActive,
+              ]}
+            >
               {tab.label}
             </Text>
           </Pressable>

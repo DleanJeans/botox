@@ -1,7 +1,11 @@
 import { create } from 'zustand';
-import { Friend } from '../types';
+import type { Friend } from '../types';
 import { generateId } from '../utils/layout';
-import { platformGetItem, platformSetItem, ensureReady } from '../utils/platformStorage';
+import {
+  ensureReady,
+  platformGetItem,
+  platformSetItem,
+} from '../utils/platformStorage';
 
 const STORAGE_KEY = 'grim-player-friends';
 
@@ -9,7 +13,9 @@ function readFriends(): Friend[] {
   try {
     const raw = platformGetItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 function writeFriends(friends: Friend[]) {
@@ -28,7 +34,11 @@ interface FriendStore {
 export const useFriendStore = create<FriendStore>((set, get) => ({
   friends: readFriends(),
   loadFriends: () => {
-    ensureReady().then(() => set({ friends: readFriends() }));
+    ensureReady().then(() =>
+      set({
+        friends: readFriends(),
+      }),
+    );
   },
   addFriend: (name, notes) => {
     const friend: Friend = {
@@ -39,27 +49,50 @@ export const useFriendStore = create<FriendStore>((set, get) => ({
       lastPlayed: null,
       gameCount: 0,
     };
-    const friends = [...get().friends, friend];
+    const friends = [
+      ...get().friends,
+      friend,
+    ];
     writeFriends(friends);
-    set({ friends });
+    set({
+      friends,
+    });
   },
   updateFriend: (id, name, notes) => {
     const friends = get().friends.map(f =>
-      f.id === id ? { ...f, name, notes } : f
+      f.id === id
+        ? {
+            ...f,
+            name,
+            notes,
+          }
+        : f,
     );
     writeFriends(friends);
-    set({ friends });
+    set({
+      friends,
+    });
   },
-  deleteFriend: (id) => {
+  deleteFriend: id => {
     const friends = get().friends.filter(f => f.id !== id);
     writeFriends(friends);
-    set({ friends });
+    set({
+      friends,
+    });
   },
-  recordGamePlayed: (id) => {
+  recordGamePlayed: id => {
     const friends = get().friends.map(f =>
-      f.id === id ? { ...f, lastPlayed: Date.now(), gameCount: f.gameCount + 1 } : f
+      f.id === id
+        ? {
+            ...f,
+            lastPlayed: Date.now(),
+            gameCount: f.gameCount + 1,
+          }
+        : f,
     );
     writeFriends(friends);
-    set({ friends });
+    set({
+      friends,
+    });
   },
 }));

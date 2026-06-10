@@ -1,9 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TextInput, Pressable, FlatList, ActivityIndicator,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { useSavedScriptStore } from '../hooks/useSavedScriptStore';
-import { BotcScriptResult } from '../hooks/useScriptSearch';
+import type { useSavedScriptStore } from '../hooks/useSavedScriptStore';
+import type { BotcScriptResult } from '../hooks/useScriptSearch';
 
 interface Props {
   searchQuery: string;
@@ -18,8 +24,14 @@ interface Props {
 }
 
 export default function ScriptBrowseTab({
-  searchQuery, setSearchQuery, searchResults, loading,
-  handleSearch, importedScripts, downloading, handleDownload,
+  searchQuery,
+  setSearchQuery,
+  searchResults,
+  loading,
+  handleSearch,
+  importedScripts,
+  downloading,
+  handleDownload,
   onPreview,
 }: Props) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -33,7 +45,9 @@ export default function ScriptBrowseTab({
   };
 
   useEffect(() => {
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, []);
   const renderSearchResult = ({ item }: { item: BotcScriptResult }) => {
     const isDownloaded = importedScripts.some(s => s.name === item.name);
@@ -45,15 +59,27 @@ export default function ScriptBrowseTab({
             by {item.author || 'Unknown'} · v{item.version} · {item.script_type}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 6 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 6,
+          }}
+        >
           <Pressable
             style={s.previewBtn}
-            onPress={() => onPreview?.(item.name, item.content.filter(c => c.id !== '_meta').map(c => c.id))}
+            onPress={() =>
+              onPreview?.(
+                item.name,
+                item.content.filter(c => c.id !== '_meta').map(c => c.id),
+              )
+            }
           >
             <Text style={s.previewBtnText}>Preview</Text>
           </Pressable>
           {isDownloaded ? (
-            <View style={s.downloadedBadge}><Text style={s.downloadedBadgeText}>Saved</Text></View>
+            <View style={s.downloadedBadge}>
+              <Text style={s.downloadedBadgeText}>Saved</Text>
+            </View>
           ) : (
             <Pressable
               style={s.downloadBtn}
@@ -73,7 +99,11 @@ export default function ScriptBrowseTab({
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
       <View style={s.searchRow}>
         <TextInput
           style={s.searchInput}
@@ -90,7 +120,9 @@ export default function ScriptBrowseTab({
       </View>
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color="#fcb93c" /></View>
+        <View style={s.center}>
+          <ActivityIndicator size="large" color="#fcb93c" />
+        </View>
       ) : searchResults.length === 0 ? (
         <View style={s.center}>
           <Text style={s.emptyIcon}>📜</Text>
@@ -116,35 +148,110 @@ export default function ScriptBrowseTab({
 }
 
 const s = StyleSheet.create({
-  searchRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  searchRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
   searchInput: {
-    flex: 1, backgroundColor: '#2f313a', borderRadius: 10,
-    paddingHorizontal: 14, paddingVertical: 12, color: '#fff', fontSize: 15,
+    flex: 1,
+    backgroundColor: '#2f313a',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: '#fff',
+    fontSize: 15,
   },
   searchBtn: {
-    backgroundColor: '#fcb93c', borderRadius: 10, paddingHorizontal: 20, justifyContent: 'center',
+    backgroundColor: '#fcb93c',
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
   },
-  searchBtnText: { color: '#000', fontSize: 15, fontWeight: '700' },
+  searchBtnText: {
+    color: '#000',
+    fontSize: 15,
+    fontWeight: '700',
+  },
   card: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#2f313a',
-    borderRadius: 14, padding: 14, gap: 12, marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2f313a',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+    marginBottom: 10,
   },
-  cardBody: { flex: 1 },
-  cardName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  cardMeta: { color: '#888', fontSize: 12, marginTop: 2 },
-  downloadedBadge: { backgroundColor: '#2a2c30', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  downloadedBadgeText: { color: '#888', fontSize: 13, fontWeight: '500' },
+  cardBody: {
+    flex: 1,
+  },
+  cardName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cardMeta: {
+    color: '#888',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  downloadedBadge: {
+    backgroundColor: '#2a2c30',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  downloadedBadgeText: {
+    color: '#888',
+    fontSize: 13,
+    fontWeight: '500',
+  },
   previewBtn: {
-    backgroundColor: '#2f313a', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8,
+    backgroundColor: '#2f313a',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  previewBtnText: { color: '#ccc', fontSize: 13, fontWeight: '500' },
+  previewBtnText: {
+    color: '#ccc',
+    fontSize: 13,
+    fontWeight: '500',
+  },
   downloadBtn: {
-    backgroundColor: '#166534', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8,
+    backgroundColor: '#166534',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
-  downloadBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  list: { paddingBottom: 8 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { color: '#fff', fontSize: 20, fontWeight: '700', marginBottom: 6 },
-  emptySubtitle: { color: '#888', fontSize: 14, textAlign: 'center', lineHeight: 20, maxWidth: 300 },
+  downloadBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  list: {
+    paddingBottom: 8,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    color: '#888',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 300,
+  },
 });

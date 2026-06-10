@@ -1,34 +1,30 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  StyleSheet,
-  TextInput,
-  Pressable,
   Modal,
+  Pressable,
+  StyleSheet,
   Text,
-  Alert,
+  TextInput,
+  View,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import GameHeader from '../../components/GameHeader';
+import GameLayout from '../../components/GameLayout';
+import PlayerBoard from '../../components/PlayerBoard';
+import PlayerCircle from '../../components/PlayerCircle';
+import PlayerListPanel from '../../components/PlayerListPanel';
+import PlayerRoom from '../../components/PlayerRoom';
+import RoleBrowser from '../../components/RoleBrowser';
 import { useGameStore } from '../../hooks/useGameStore';
 import { useResponsive } from '../../hooks/useResponsive';
-import PlayerCircle from '../../components/PlayerCircle';
-import PlayerRoom from '../../components/PlayerRoom';
-import PlayerBoard from '../../components/PlayerBoard';
-import PlayerListPanel from '../../components/PlayerListPanel';
-import RoleBrowser from '../../components/RoleBrowser';
-import GameLayout from '../../components/GameLayout';
-import GameHeader from '../../components/GameHeader';
 
 export default function GameScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{
+    id: string;
+  }>();
   const { isDesktop } = useResponsive();
-
-  // Ensure currentGameId is set for store operations (prevDay, nextDay, etc.)
-  useEffect(() => {
-    setCurrentGame(id);
-  }, [id]);
 
   const games = useGameStore(s => s.games);
   const setCurrentGame = useGameStore(s => s.setCurrentGame);
@@ -54,7 +50,6 @@ export default function GameScreen() {
   const updateConversationNotes = useGameStore(s => s.updateConversationNotes);
   const deleteConversation = useGameStore(s => s.deleteConversation);
 
-
   const game = games.find(g => g.id === id);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
@@ -62,6 +57,14 @@ export default function GameScreen() {
   const [roomDraggable, setRoomDraggable] = useState(false);
   const [playerDraggable, setPlayerDraggable] = useState(false);
   const setEditMode = useGameStore(s => s.setEditMode);
+
+  // Ensure currentGameId is set for store operations (prevDay, nextDay, etc.)
+  useEffect(() => {
+    setCurrentGame(id);
+  }, [
+    id,
+    setCurrentGame,
+  ]);
 
   const handleAddPlayer = useCallback(() => {
     setNewPlayerName('');
@@ -74,7 +77,10 @@ export default function GameScreen() {
       addPlayer(name);
     }
     setShowNamePrompt(false);
-  }, [newPlayerName, addPlayer]);
+  }, [
+    newPlayerName,
+    addPlayer,
+  ]);
 
   const handlePlayerPress = useCallback((playerId: string) => {
     setSelectedPlayerId(playerId);
@@ -88,13 +94,19 @@ export default function GameScreen() {
       }
       removePlayer(playerId);
     },
-    [game, removePlayer]
+    [
+      game,
+      removePlayer,
+    ],
   );
 
   const handleBack = useCallback(() => {
     setCurrentGame(null);
     router.push('/');
-  }, [setCurrentGame, router]);
+  }, [
+    setCurrentGame,
+    router,
+  ]);
 
   if (!game) {
     return (
@@ -135,7 +147,7 @@ export default function GameScreen() {
     <PlayerListPanel
       game={game}
       onPlayerPress={handlePlayerPress}
-      onToggleAlive={(playerId) => toggleAlive(playerId)}
+      onToggleAlive={playerId => toggleAlive(playerId)}
       onRemovePlayer={handleRemovePlayer}
       onAddConversation={addConversation}
       onUpdateConversationNotes={updateConversationNotes}
@@ -146,7 +158,7 @@ export default function GameScreen() {
   const roleBrowserPanel = (
     <RoleBrowser
       scriptId={game.scriptId}
-      onSelectRole={(roleId) => {
+      onSelectRole={roleId => {
         if (selectedPlayer) {
           setGuessedRole(selectedPlayer.id, roleId);
         }
@@ -157,7 +169,12 @@ export default function GameScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView
+      style={styles.container}
+      edges={[
+        'top',
+      ]}
+    >
       {/* Header — always visible */}
       <GameHeader
         title={game.name}
@@ -200,9 +217,7 @@ export default function GameScreen() {
           >
             <Text style={styles.dayBtnText}>Prev Day</Text>
           </Pressable>
-          <Text style={styles.dayLabel}>
-            Day {game.currentDay}
-          </Text>
+          <Text style={styles.dayLabel}>Day {game.currentDay}</Text>
           <Pressable style={styles.dayBtn} onPress={nextDay}>
             <Text style={styles.dayBtnText}>Next Day</Text>
           </Pressable>
@@ -216,16 +231,16 @@ export default function GameScreen() {
           player={selectedPlayer}
           scriptId={game.scriptId}
           onClose={() => setSelectedPlayerId(null)}
-          onSetGuessedRole={(roleId) => {
+          onSetGuessedRole={roleId => {
             if (selectedPlayer) setGuessedRole(selectedPlayer.id, roleId);
           }}
-          onSetClaimedRole={(roleId) => {
+          onSetClaimedRole={roleId => {
             if (selectedPlayer) setClaimedRole(selectedPlayer.id, roleId);
           }}
-          onSetSuspicion={(level) => {
+          onSetSuspicion={level => {
             if (selectedPlayer) setSuspicion(selectedPlayer.id, level);
           }}
-          onSetNotes={(notes) => {
+          onSetNotes={notes => {
             if (selectedPlayer) setNotes(selectedPlayer.id, notes);
           }}
           onToggleAlive={() => {

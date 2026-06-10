@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
-import { Script, SavedScript } from '../types';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { SavedScript, Script } from '../types';
 
 interface Props {
   importedScripts: SavedScript[];
@@ -10,7 +9,10 @@ interface Props {
 }
 
 export default function ScriptSavedTab({
-  importedScripts, builtinScripts, onScriptPress, onDeleteScript,
+  importedScripts,
+  builtinScripts,
+  onScriptPress,
+  onDeleteScript,
 }: Props) {
   const renderSaved = ({ item }: { item: SavedScript }) => (
     <Pressable
@@ -22,7 +24,8 @@ export default function ScriptSavedTab({
         <Text style={s.cardName}>{item.name}</Text>
         <Text style={s.cardMeta}>
           by {item.author || 'Unknown'} · v{item.version}
-          {' · '}{item.roleIds.length} roles
+          {' · '}
+          {item.roleIds.length} roles
           {' · '}Saved {new Date(item.savedAt).toLocaleDateString()}
         </Text>
       </View>
@@ -31,7 +34,11 @@ export default function ScriptSavedTab({
   );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
       {importedScripts.length > 0 && (
         <>
           <Text style={s.panelTitle}>Saved ({importedScripts.length})</Text>
@@ -54,7 +61,14 @@ export default function ScriptSavedTab({
         </View>
       )}
 
-      <Text style={[s.panelTitle, { marginTop: importedScripts.length > 0 ? 16 : 8 }]}>
+      <Text
+        style={[
+          s.panelTitle,
+          {
+            marginTop: importedScripts.length > 0 ? 16 : 8,
+          },
+        ]}
+      >
         Official Scripts
       </Text>
       {builtinScripts.map(script => (
@@ -65,7 +79,9 @@ export default function ScriptSavedTab({
         >
           <View style={s.cardBody}>
             <Text style={s.cardName}>{script.name}</Text>
-            <Text style={s.cardMeta}>{script.roles.length} roles · Built-in</Text>
+            <Text style={s.cardMeta}>
+              {script.roles.length} roles · Built-in
+            </Text>
           </View>
         </Pressable>
       ))}
@@ -75,20 +91,63 @@ export default function ScriptSavedTab({
 
 const s = StyleSheet.create({
   card: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#2f313a',
-    borderRadius: 14, padding: 14, gap: 12, marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2f313a',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+    marginBottom: 10,
   },
-  cardBody: { flex: 1 },
-  cardName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  cardMeta: { color: '#888', fontSize: 12, marginTop: 2 },
-  cardArrow: { color: '#666', fontSize: 18 },
+  cardBody: {
+    flex: 1,
+  },
+  cardName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cardMeta: {
+    color: '#888',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  cardArrow: {
+    color: '#666',
+    fontSize: 18,
+  },
   panelTitle: {
-    color: '#aaa', fontSize: 13, fontWeight: '600', textTransform: 'uppercase',
-    letterSpacing: 1, marginBottom: 10,
+    color: '#aaa',
+    fontSize: 13,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 10,
   },
-  list: { paddingBottom: 8 },
-  center: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40, paddingVertical: 40 },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { color: '#fff', fontSize: 20, fontWeight: '700', marginBottom: 6 },
-  emptySubtitle: { color: '#888', fontSize: 14, textAlign: 'center', lineHeight: 20, maxWidth: 300 },
+  list: {
+    paddingBottom: 8,
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 40,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  emptySubtitle: {
+    color: '#888',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 300,
+  },
 });

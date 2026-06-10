@@ -1,4 +1,4 @@
-import { Script } from '../types';
+import type { Script } from '../types';
 import { getDynamicRoles } from './roleIcons';
 
 // ── Static fallback scripts ──
@@ -7,32 +7,86 @@ const STATIC_SCRIPTS: Script[] = [
     id: 'tb',
     name: 'Trouble Brewing',
     roles: [
-      'washerwoman', 'librarian', 'investigator', 'chef', 'empath',
-      'fortuneTeller', 'undertaker', 'monk', 'soldier', 'ravenkeeper',
-      'virgin', 'slayer', 'mayor',
-      'drunk', 'recluse', 'saint', 'butler',
-      'poisoner', 'spy', 'scarletWoman', 'baron', 'imp',
+      'washerwoman',
+      'librarian',
+      'investigator',
+      'chef',
+      'empath',
+      'fortuneTeller',
+      'undertaker',
+      'monk',
+      'soldier',
+      'ravenkeeper',
+      'virgin',
+      'slayer',
+      'mayor',
+      'drunk',
+      'recluse',
+      'saint',
+      'butler',
+      'poisoner',
+      'spy',
+      'scarletWoman',
+      'baron',
+      'imp',
     ],
   },
   {
     id: 'bmr',
     name: 'Bad Moon Rising',
     roles: [
-      'grandmother', 'sailor', 'chambermaid', 'exorcist', 'innkeeper',
-      'gambler', 'gossip', 'courtier', 'professor', 'minstrel',
-      'teaLady', 'pacifist', 'fool', 'tinker', 'moonchild', 'godfather',
-      'assassin', 'devilsAdvocate', 'mastermind', 'zombuul', 'shabaloth', 'po',
+      'grandmother',
+      'sailor',
+      'chambermaid',
+      'exorcist',
+      'innkeeper',
+      'gambler',
+      'gossip',
+      'courtier',
+      'professor',
+      'minstrel',
+      'teaLady',
+      'pacifist',
+      'fool',
+      'tinker',
+      'moonchild',
+      'godfather',
+      'assassin',
+      'devilsAdvocate',
+      'mastermind',
+      'zombuul',
+      'shabaloth',
+      'po',
     ],
   },
   {
     id: 'snv',
     name: 'Sects & Violets',
     roles: [
-      'dreamer', 'snakeCharmer', 'mathematician', 'flowerGirl', 'townCrier',
-      'oracle', 'savant', 'seamstress', 'philosopher', 'artist', 'juggler',
-      'sage', 'mutant', 'sweetheart', 'barber', 'klutz',
-      'evilTwin', 'witch', 'cerenovus', 'pithag', 'fangGu', 'vigormortis',
-      'noDashii', 'vortex',
+      'dreamer',
+      'snakeCharmer',
+      'mathematician',
+      'flowerGirl',
+      'townCrier',
+      'oracle',
+      'savant',
+      'seamstress',
+      'philosopher',
+      'artist',
+      'juggler',
+      'sage',
+      'mutant',
+      'sweetheart',
+      'barber',
+      'klutz',
+      'evilTwin',
+      'witch',
+      'cerenovus',
+      'pithag',
+      'fangGu',
+      'vigormortis',
+      'noDashii',
+      'vortex',
     ],
   },
 ];
@@ -52,33 +106,54 @@ function buildDynamicScripts(): Script[] {
   const roles = getDynamicRoles();
   if (roles.length === 0) return STATIC_SCRIPTS;
 
-  const editions = new Map<string, { name: string; roles: string[] }>();
+  const editions = new Map<
+    string,
+    {
+      name: string;
+      roles: string[];
+    }
+  >();
 
   for (const role of roles) {
     const edition = role.edition || 'tb';
     if (!editions.has(edition)) {
       editions.set(edition, {
-        name: EDITION_NAMES[edition] || edition.charAt(0).toUpperCase() + edition.slice(1),
+        name:
+          EDITION_NAMES[edition] ||
+          edition.charAt(0).toUpperCase() + edition.slice(1),
         roles: [],
       });
     }
-    editions.get(edition)!.roles.push(role.id);
+    editions.get(edition)?.roles.push(role.id);
   }
 
   // Convert to array, put core editions first
-  const order = ['tb', 'bmr', 'snv', 'carousel'];
+  const order = [
+    'tb',
+    'bmr',
+    'snv',
+    'carousel',
+  ];
   const result: Script[] = [];
 
   for (const id of order) {
     if (editions.has(id)) {
       const e = editions.get(id)!;
-      result.push({ id, name: e.name, roles: e.roles });
+      result.push({
+        id,
+        name: e.name,
+        roles: e.roles,
+      });
       editions.delete(id);
     }
   }
   // Remaining (custom/unexpected editions)
   for (const [id, e] of editions) {
-    result.push({ id, name: e.name, roles: e.roles });
+    result.push({
+      id,
+      name: e.name,
+      roles: e.roles,
+    });
   }
 
   return result;

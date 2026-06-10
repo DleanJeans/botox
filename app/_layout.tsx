@@ -1,11 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
 import { useEffect } from 'react';
-import { useGameStore } from '../hooks/useGameStore';
-import { useFriendStore } from '../hooks/useFriendStore';
-import { useSavedScriptStore } from '../hooks/useSavedScriptStore';
+import { View } from 'react-native';
 import { preloadRoleData } from '../data/roleIcons';
+import { useFriendStore } from '../hooks/useFriendStore';
+import { useGameStore } from '../hooks/useGameStore';
+import { useSavedScriptStore } from '../hooks/useSavedScriptStore';
 
 export default function RootLayout() {
   const loadGames = useGameStore(s => s.loadGames);
@@ -17,21 +17,42 @@ export default function RootLayout() {
     loadFriends();
     loadScripts();
     preloadRoleData();
-  }, []);
+  }, [
+    loadScripts,
+    loadGames,
+    loadFriends,
+  ]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#1a1b1e' }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#1a1b1e',
+      }}
+    >
       <StatusBar style="light" />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#1a1b1e' },
+          contentStyle: {
+            backgroundColor: '#1a1b1e',
+          },
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen name="new-game" />
         <Stack.Screen name="game/[id]" />
-        <Stack.Screen name="player/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="player/[id]"
+          options={{
+            presentation: 'modal',
+          }}
+        />
       </Stack>
     </View>
   );

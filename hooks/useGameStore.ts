@@ -1,7 +1,11 @@
 import { create } from 'zustand';
-import { Game, Player, VoteRecord, Conversation } from '../types';
+import type { Conversation, Game, Player, VoteRecord } from '../types';
 import { generateId } from '../utils/layout';
-import { loadGames, upsertGame, deleteGame as deleteStoredGame } from '../utils/storage';
+import {
+  deleteGame as deleteStoredGame,
+  loadGames,
+  upsertGame,
+} from '../utils/storage';
 
 interface GameStore {
   games: Game[];
@@ -40,24 +44,31 @@ interface GameStore {
   importScript: (name: string, roleIds: string[]) => void;
   clearScript: () => void;
 
-  addConversation: (participants: string[], initiatorId: string, notes: string) => void;
+  addConversation: (
+    participants: string[],
+    initiatorId: string,
+    notes: string,
+  ) => void;
   updateConversationNotes: (convId: string, notes: string) => void;
   deleteConversation: (convId: string) => void;
 }
 
-function updateAndSave(
-  get: () => GameStore,
-  updater: (game: Game) => Game,
-) {
+function updateAndSave(get: () => GameStore, updater: (game: Game) => Game) {
   const { games, currentGameId } = get();
   const idx = games.findIndex(g => g.id === currentGameId);
   if (idx === -1) return;
 
-  const updated = updater({ ...games[idx] });
-  const newGames = [...games];
+  const updated = updater({
+    ...games[idx],
+  });
+  const newGames = [
+    ...games,
+  ];
   newGames[idx] = updated;
   upsertGame(updated);
-  return { games: newGames };
+  return {
+    games: newGames,
+  };
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -66,7 +77,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadGames: () => {
     const games = loadGames();
-    set({ games });
+    set({
+      games,
+    });
   },
 
   createGame: (name: string, scriptId: string | null) => {
@@ -83,7 +96,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       conversations: [],
     };
     const games = upsertGame(game);
-    set({ games, currentGameId: game.id });
+    set({
+      games,
+      currentGameId: game.id,
+    });
     return game.id;
   },
 
@@ -96,7 +112,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   setCurrentGame: (id: string | null) => {
-    set({ currentGameId: id });
+    set({
+      currentGameId: id,
+    });
   },
 
   addPlayer: (name: string) => {
@@ -106,7 +124,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         name,
         isAlive: true,
         isGhostVote: false,
-        position: { x: 0, y: 0 },
+        position: {
+          x: 0,
+          y: 0,
+        },
         positionLocked: false,
         guessedRole: null,
         claimedRole: null,
@@ -115,7 +136,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
         voteHistory: [],
         defenseTokens: 0,
       };
-      return { ...game, players: [...game.players, player] };
+      return {
+        ...game,
+        players: [
+          ...game.players,
+          player,
+        ],
+      };
     });
     if (result) set(result);
   },
@@ -133,8 +160,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...game,
       players: game.players.map(p =>
         p.id === playerId
-          ? { ...p, isAlive: !p.isAlive, isGhostVote: !p.isAlive ? false : p.isGhostVote }
-          : p
+          ? {
+              ...p,
+              isAlive: !p.isAlive,
+              isGhostVote: !p.isAlive ? false : p.isGhostVote,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -145,8 +176,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...game,
       players: game.players.map(p =>
         p.id === playerId && !p.isAlive
-          ? { ...p, isGhostVote: !p.isGhostVote }
-          : p
+          ? {
+              ...p,
+              isGhostVote: !p.isGhostVote,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -156,7 +190,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, position: { x, y } } : p
+        p.id === playerId
+          ? {
+              ...p,
+              position: {
+                x,
+                y,
+              },
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -166,7 +208,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, positionLocked: true } : p
+        p.id === playerId
+          ? {
+              ...p,
+              positionLocked: true,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -176,7 +223,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, positionLocked: false } : p
+        p.id === playerId
+          ? {
+              ...p,
+              positionLocked: false,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -186,7 +238,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p => ({
-        ...p, positionLocked: false, position: { x: 0, y: 0 },
+        ...p,
+        positionLocked: false,
+        position: {
+          x: 0,
+          y: 0,
+        },
       })),
     }));
     if (result) set(result);
@@ -197,19 +254,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...game,
       layout,
       players: game.players.map(p => ({
-        ...p, positionLocked: false, position: { x: 0, y: 0 },
+        ...p,
+        positionLocked: false,
+        position: {
+          x: 0,
+          y: 0,
+        },
       })),
     }));
     if (result) set(result);
   },
 
   toggleEditMode: () => {
-    const result = updateAndSave(get, game => ({ ...game, editMode: !game.editMode }));
+    const result = updateAndSave(get, game => ({
+      ...game,
+      editMode: !game.editMode,
+    }));
     if (result) set(result);
   },
 
   setEditMode: (edit: boolean) => {
-    const result = updateAndSave(get, game => ({ ...game, editMode: edit }));
+    const result = updateAndSave(get, game => ({
+      ...game,
+      editMode: edit,
+    }));
     if (result) set(result);
   },
 
@@ -217,7 +285,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, guessedRole: roleId } : p
+        p.id === playerId
+          ? {
+              ...p,
+              guessedRole: roleId,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -227,7 +300,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, claimedRole: roleId } : p
+        p.id === playerId
+          ? {
+              ...p,
+              claimedRole: roleId,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -237,7 +315,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, suspicion: level } : p
+        p.id === playerId
+          ? {
+              ...p,
+              suspicion: level,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -247,7 +330,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       players: game.players.map(p =>
-        p.id === playerId ? { ...p, notes } : p
+        p.id === playerId
+          ? {
+              ...p,
+              notes,
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -258,8 +346,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...game,
       players: game.players.map(p =>
         p.id === playerId
-          ? { ...p, voteHistory: [...p.voteHistory, record] }
-          : p
+          ? {
+              ...p,
+              voteHistory: [
+                ...p.voteHistory,
+                record,
+              ],
+            }
+          : p,
       ),
     }));
     if (result) set(result);
@@ -282,7 +376,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   setGameNotes: (notes: string) => {
-    const result = updateAndSave(get, game => ({ ...game, gameNotes: notes }));
+    const result = updateAndSave(get, game => ({
+      ...game,
+      gameNotes: notes,
+    }));
     if (result) set(result);
   },
 
@@ -293,7 +390,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return game.gameNotes;
   },
 
-  importScript: (name: string, roleIds: string[]) => {
+  importScript: (name: string, _roleIds: string[]) => {
     const result = updateAndSave(get, game => ({
       ...game,
       scriptId: name,
@@ -309,7 +406,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (result) set(result);
   },
 
-  addConversation: (participants: string[], initiatorId: string, notes: string) => {
+  addConversation: (
+    participants: string[],
+    initiatorId: string,
+    notes: string,
+  ) => {
     const conv: Conversation = {
       id: generateId(),
       day: get().games.find(g => g.id === get().currentGameId)?.currentDay || 1,
@@ -320,7 +421,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     const result = updateAndSave(get, game => ({
       ...game,
-      conversations: [...game.conversations, conv],
+      conversations: [
+        ...game.conversations,
+        conv,
+      ],
     }));
     if (result) set(result);
   },
@@ -329,7 +433,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const result = updateAndSave(get, game => ({
       ...game,
       conversations: game.conversations.map(c =>
-        c.id === convId ? { ...c, notes } : c
+        c.id === convId
+          ? {
+              ...c,
+              notes,
+            }
+          : c,
       ),
     }));
     if (result) set(result);

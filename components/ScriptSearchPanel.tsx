@@ -9,7 +9,12 @@ import {
   View,
 } from 'react-native';
 import { getRoles } from '../data/roles';
-import { type BotcScriptResult, extractMeta, extractRoleIds, searchScripts } from '../hooks/useScriptSearch';
+import {
+  type BotcScriptResult,
+  extractMeta,
+  extractRoleIds,
+  searchScripts,
+} from '../hooks/useScriptSearch';
 import RoleIcon from './RoleIcon';
 
 interface ScriptSearchPanelProps {
@@ -30,26 +35,36 @@ export default function ScriptSearchPanel({
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const handleSearch = useCallback(async (newPage = 1) => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setError('');
-    try {
-      const data = await searchScripts(query, newPage);
-      setResults(data.results);
-      setTotalCount(data.count);
-      setPage(newPage);
-    } catch (e: any) {
-      setError(e.message || 'Search failed');
-    } finally {
-      setLoading(false);
-    }
-  }, [query]);
+  const handleSearch = useCallback(
+    async (newPage = 1) => {
+      if (!query.trim()) return;
+      setLoading(true);
+      setError('');
+      try {
+        const data = await searchScripts(query, newPage);
+        setResults(data.results);
+        setTotalCount(data.count);
+        setPage(newPage);
+      } catch (e: any) {
+        setError(e.message || 'Search failed');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      query,
+    ],
+  );
 
-  const handleImport = useCallback((script: BotcScriptResult) => {
-    const roleIds = extractRoleIds(script.content);
-    onImportScript(script.name, roleIds);
-  }, [onImportScript]);
+  const handleImport = useCallback(
+    (script: BotcScriptResult) => {
+      const roleIds = extractRoleIds(script.content);
+      onImportScript(script.name, roleIds);
+    },
+    [
+      onImportScript,
+    ],
+  );
 
   const matchedRoleCount = (roleIds: string[]) => {
     return roleIds.filter(id => getRoles()[id]).length;
@@ -80,10 +95,7 @@ export default function ScriptSearchPanel({
           onSubmitEditing={() => handleSearch(1)}
           returnKeyType="search"
         />
-        <Pressable
-          style={styles.searchBtn}
-          onPress={() => handleSearch(1)}
-        >
+        <Pressable style={styles.searchBtn} onPress={() => handleSearch(1)}>
           <Text style={styles.searchBtnText}>Search</Text>
         </Pressable>
       </View>
@@ -140,10 +152,31 @@ export default function ScriptSearchPanel({
                     {roleIds.slice(0, 8).map(id => {
                       const role = getRoles()[id];
                       return (
-                        <View key={id} style={[styles.roleChip, role ? styles.roleChipKnown : styles.roleChipUnknown]}>
+                        <View
+                          key={id}
+                          style={[
+                            styles.roleChip,
+                            role
+                              ? styles.roleChipKnown
+                              : styles.roleChipUnknown,
+                          ]}
+                        >
                           <Text style={styles.roleChipText}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                              {role && <RoleIcon roleId={role.id} team={role.team} size={12} showBorder={false} />}
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 2,
+                              }}
+                            >
+                              {role && (
+                                <RoleIcon
+                                  roleId={role.id}
+                                  team={role.team}
+                                  size={12}
+                                  showBorder={false}
+                                />
+                              )}
                               <Text style={styles.roleChipText}>
                                 {role ? role.name : id}
                               </Text>
@@ -153,7 +186,9 @@ export default function ScriptSearchPanel({
                       );
                     })}
                     {roleIds.length > 8 && (
-                      <Text style={styles.moreRoles}>+{roleIds.length - 8} more</Text>
+                      <Text style={styles.moreRoles}>
+                        +{roleIds.length - 8} more
+                      </Text>
                     )}
                   </View>
                 </Pressable>
@@ -164,7 +199,10 @@ export default function ScriptSearchPanel({
           {/* Pagination */}
           <View style={styles.pagination}>
             <Pressable
-              style={[styles.pageBtn, page <= 1 && styles.pageBtnDisabled]}
+              style={[
+                styles.pageBtn,
+                page <= 1 && styles.pageBtnDisabled,
+              ]}
               onPress={() => page > 1 && handleSearch(page - 1)}
               disabled={page <= 1}
             >
@@ -172,7 +210,10 @@ export default function ScriptSearchPanel({
             </Pressable>
             <Text style={styles.pageNum}>Page {page}</Text>
             <Pressable
-              style={[styles.pageBtn, results.length < 10 && styles.pageBtnDisabled]}
+              style={[
+                styles.pageBtn,
+                results.length < 10 && styles.pageBtnDisabled,
+              ]}
               onPress={() => results.length >= 10 && handleSearch(page + 1)}
               disabled={results.length < 10}
             >

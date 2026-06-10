@@ -1,11 +1,16 @@
-import { Role, Team } from '../types';
+import type { Role, Team } from '../types';
 import { getDynamicRoles } from './roleIcons';
 
 // ── Minimal fallback roles (only used when API data hasn't loaded) ──
 const FALLBACK_ROLES: Record<string, Role> = {};
 
 const TEAM_EMOJI: Record<string, string> = {
-  townsfolk: '👤', outsider: '❓', minion: '👹', demon: '😈', fabled: '⭐', traveller: '🧳',
+  townsfolk: '👤',
+  outsider: '❓',
+  minion: '👹',
+  demon: '😈',
+  fabled: '⭐',
+  traveller: '🧳',
 };
 
 function apiRoleToInternal(apiRole: any): Role {
@@ -58,5 +63,10 @@ export const TEAM_COLORS: Record<string, string> = {
 };
 
 export const TEAM_ORDER: Record<string, number> = {
-  townsfolk: 0, outsider: 1, minion: 2, demon: 3, fabled: 4, traveller: 5,
+  townsfolk: 0,
+  outsider: 1,
+  minion: 2,
+  demon: 3,
+  fabled: 4,
+  traveller: 5,
 };

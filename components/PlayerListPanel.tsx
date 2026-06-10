@@ -19,7 +19,11 @@ interface PlayerListPanelProps {
   onRemovePlayer: (playerId: string) => void;
   onClose?: () => void;
   compact?: boolean;
-  onAddConversation?: (participants: string[], initiatorId: string, notes: string) => void;
+  onAddConversation?: (
+    participants: string[],
+    initiatorId: string,
+    notes: string,
+  ) => void;
   onUpdateConversationNotes?: (convId: string, notes: string) => void;
   onDeleteConversation?: (convId: string) => void;
 }
@@ -48,12 +52,16 @@ export default function PlayerListPanel({
       players = players.filter(
         p =>
           p.name.toLowerCase().includes(q) ||
-          (p.guessedRole && p.guessedRole.toLowerCase().includes(q)) ||
-          (p.claimedRole && p.claimedRole.toLowerCase().includes(q))
+          p.guessedRole?.toLowerCase().includes(q) ||
+          p.claimedRole?.toLowerCase().includes(q),
       );
     }
     return players;
-  }, [game.players, filter, search]);
+  }, [
+    game.players,
+    filter,
+    search,
+  ]);
 
   const suspicionEmoji = (level: number) => {
     if (level === 0) return '';
@@ -63,7 +71,7 @@ export default function PlayerListPanel({
   };
 
   // Count conversations per player for badge display
-  const convCount = useMemo(() => {
+  const _convCount = useMemo(() => {
     const counts: Record<string, number> = {};
     const conversations = game.conversations || [];
     for (const c of conversations) {
@@ -72,25 +80,48 @@ export default function PlayerListPanel({
       }
     }
     return counts;
-  }, [game.conversations]);
+  }, [
+    game.conversations,
+  ]);
 
   return (
-    <View style={[styles.container, compact && styles.compact]}>
+    <View
+      style={[
+        styles.container,
+        compact && styles.compact,
+      ]}
+    >
       {/* View tabs */}
       <View style={styles.viewTabRow}>
         <Pressable
-          style={[styles.viewTab, view === 'players' && styles.viewTabActive]}
+          style={[
+            styles.viewTab,
+            view === 'players' && styles.viewTabActive,
+          ]}
           onPress={() => setView('players')}
         >
-          <Text style={[styles.viewTabText, view === 'players' && styles.viewTabTextActive]}>
+          <Text
+            style={[
+              styles.viewTabText,
+              view === 'players' && styles.viewTabTextActive,
+            ]}
+          >
             👥 Players
           </Text>
         </Pressable>
         <Pressable
-          style={[styles.viewTab, view === 'conversations' && styles.viewTabActive]}
+          style={[
+            styles.viewTab,
+            view === 'conversations' && styles.viewTabActive,
+          ]}
           onPress={() => setView('conversations')}
         >
-          <Text style={[styles.viewTabText, view === 'conversations' && styles.viewTabTextActive]}>
+          <Text
+            style={[
+              styles.viewTabText,
+              view === 'conversations' && styles.viewTabTextActive,
+            ]}
+          >
             💬 Talks ({game.conversations.length})
           </Text>
         </Pressable>
@@ -106,138 +137,191 @@ export default function PlayerListPanel({
           onDeleteConversation={onDeleteConversation || (() => {})}
         />
       ) : (
-      <>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>
-            Players{' '}
-            <Text style={styles.count}>({game.players.length})</Text>
-          </Text>
-          {onClose && (
-            <Pressable onPress={onClose} style={styles.closeBtn}>
-              <Text style={styles.closeBtnText}>✕</Text>
-            </Pressable>
-          )}
-        </View>
-
-        {/* Filter chips */}
-        <View style={styles.filterRow}>
-          {(['all', 'alive', 'dead'] as const).map(f => (
-            <Pressable
-              key={f}
-              style={[styles.filterChip, filter === f && styles.filterChipActive]}
-              onPress={() => setFilter(f)}
-            >
-              <Text
-                style={[styles.filterText, filter === f && styles.filterTextActive]}
-              >
-                {f === 'all' ? 'All' : f === 'alive' ? 'Alive' : 'Dead'}
+        <>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <Text style={styles.title}>
+                Players{' '}
+                <Text style={styles.count}>({game.players.length})</Text>
               </Text>
-            </Pressable>
-          ))}
-        </View>
+              {onClose && (
+                <Pressable onPress={onClose} style={styles.closeBtn}>
+                  <Text style={styles.closeBtnText}>✕</Text>
+                </Pressable>
+              )}
+            </View>
 
-        {/* Search */}
-        <TextInput
-          style={styles.searchInput}
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search players..."
-          placeholderTextColor="#555"
-        />
-      </View>
-
-      {/* Player list */}
-      <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-        {filteredPlayers.length === 0 ? (
-          <View style={styles.emptyRow}>
-            <Text style={styles.emptyText}>
-              {search ? 'No matching players' : 'No players yet'}
-            </Text>
-          </View>
-        ) : (
-          filteredPlayers.map(player => (
-            <Pressable
-              key={player.id}
-              style={[styles.playerRow, !player.isAlive && styles.deadRow]}
-              onPress={() => onPlayerPress(player.id)}
-            >
-              {/* Status dot */}
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: player.isAlive ? '#22c55e' : '#666' },
-                ]}
-              />
-
-              {/* Player info */}
-              <View style={styles.playerInfo}>
-                <View style={styles.nameRow}>
+            {/* Filter chips */}
+            <View style={styles.filterRow}>
+              {(
+                [
+                  'all',
+                  'alive',
+                  'dead',
+                ] as const
+              ).map(f => (
+                <Pressable
+                  key={f}
+                  style={[
+                    styles.filterChip,
+                    filter === f && styles.filterChipActive,
+                  ]}
+                  onPress={() => setFilter(f)}
+                >
                   <Text
-                    style={[styles.playerName, !player.isAlive && styles.deadName]}
-                    numberOfLines={1}
+                    style={[
+                      styles.filterText,
+                      filter === f && styles.filterTextActive,
+                    ]}
                   >
-                    {player.name}
+                    {f === 'all' ? 'All' : f === 'alive' ? 'Alive' : 'Dead'}
                   </Text>
-                  {player.isGhostVote && <Text style={styles.ghostIcon}>👻</Text>}
-                  {suspicionEmoji(player.suspicion) ? (
-                    <Text style={styles.suspicionIcon}>
-                      {suspicionEmoji(player.suspicion)}
-                    </Text>
-                  ) : null}
-                </View>
+                </Pressable>
+              ))}
+            </View>
 
-                {/* Role info */}
-                {(player.guessedRole || player.claimedRole) && (
-                  <View style={styles.roleRow}>
-                    {player.guessedRole && (
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                        {getRoles()[player.guessedRole] && (
-                          <RoleIcon roleId={getRoles()[player.guessedRole].id} team={getRoles()[player.guessedRole].team} size={14} showBorder={false} />
-                        )}
-                        <Text style={styles.guessedRole} numberOfLines={1}>
-                          {getRoles()[player.guessedRole]?.name || player.guessedRole}
+            {/* Search */}
+            <TextInput
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Search players..."
+              placeholderTextColor="#555"
+            />
+          </View>
+
+          {/* Player list */}
+          <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+            {filteredPlayers.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Text style={styles.emptyText}>
+                  {search ? 'No matching players' : 'No players yet'}
+                </Text>
+              </View>
+            ) : (
+              filteredPlayers.map(player => (
+                <Pressable
+                  key={player.id}
+                  style={[
+                    styles.playerRow,
+                    !player.isAlive && styles.deadRow,
+                  ]}
+                  onPress={() => onPlayerPress(player.id)}
+                >
+                  {/* Status dot */}
+                  <View
+                    style={[
+                      styles.statusDot,
+                      {
+                        backgroundColor: player.isAlive ? '#22c55e' : '#666',
+                      },
+                    ]}
+                  />
+
+                  {/* Player info */}
+                  <View style={styles.playerInfo}>
+                    <View style={styles.nameRow}>
+                      <Text
+                        style={[
+                          styles.playerName,
+                          !player.isAlive && styles.deadName,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {player.name}
+                      </Text>
+                      {player.isGhostVote && (
+                        <Text style={styles.ghostIcon}>👻</Text>
+                      )}
+                      {suspicionEmoji(player.suspicion) ? (
+                        <Text style={styles.suspicionIcon}>
+                          {suspicionEmoji(player.suspicion)}
                         </Text>
+                      ) : null}
+                    </View>
+
+                    {/* Role info */}
+                    {(player.guessedRole || player.claimedRole) && (
+                      <View style={styles.roleRow}>
+                        {player.guessedRole && (
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: 4,
+                            }}
+                          >
+                            {getRoles()[player.guessedRole] && (
+                              <RoleIcon
+                                roleId={getRoles()[player.guessedRole].id}
+                                team={getRoles()[player.guessedRole].team}
+                                size={14}
+                                showBorder={false}
+                              />
+                            )}
+                            <Text style={styles.guessedRole} numberOfLines={1}>
+                              {getRoles()[player.guessedRole]?.name ||
+                                player.guessedRole}
+                            </Text>
+                          </View>
+                        )}
+                        {player.claimedRole &&
+                          player.claimedRole !== player.guessedRole && (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                            >
+                              {getRoles()[player.claimedRole] && (
+                                <RoleIcon
+                                  roleId={getRoles()[player.claimedRole].id}
+                                  team={getRoles()[player.claimedRole].team}
+                                  size={14}
+                                  showBorder={false}
+                                />
+                              )}
+                              <Text
+                                style={styles.claimedRole}
+                                numberOfLines={1}
+                              >
+                                claims{' '}
+                                {getRoles()[player.claimedRole]?.name ||
+                                  player.claimedRole}
+                              </Text>
+                            </View>
+                          )}
                       </View>
                     )}
-                    {player.claimedRole &&
-                      player.claimedRole !== player.guessedRole && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                          {getRoles()[player.claimedRole] && (
-                            <RoleIcon roleId={getRoles()[player.claimedRole].id} team={getRoles()[player.claimedRole].team} size={14} showBorder={false} />
-                          )}
-                          <Text style={styles.claimedRole} numberOfLines={1}>
-                            claims {getRoles()[player.claimedRole]?.name || player.claimedRole}
-                          </Text>
-                        </View>
-                      )}
                   </View>
-                )}
-              </View>
 
-              {/* Actions */}
-              <View style={styles.actions}>
-                <Pressable
-                  style={[styles.actionBtn, player.isAlive ? styles.killBtn : styles.reviveBtn]}
-                  onPress={() => onToggleAlive(player.id)}
-                >
-                  <Text style={styles.actionBtnText}>
-                    {player.isAlive ? '💀' : '❤️'}
-                  </Text>
+                  {/* Actions */}
+                  <View style={styles.actions}>
+                    <Pressable
+                      style={[
+                        styles.actionBtn,
+                        player.isAlive ? styles.killBtn : styles.reviveBtn,
+                      ]}
+                      onPress={() => onToggleAlive(player.id)}
+                    >
+                      <Text style={styles.actionBtnText}>
+                        {player.isAlive ? '💀' : '❤️'}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.removeBtn}
+                      onPress={() => onRemovePlayer(player.id)}
+                    >
+                      <Text style={styles.removeBtnText}>✕</Text>
+                    </Pressable>
+                  </View>
                 </Pressable>
-                <Pressable
-                  style={styles.removeBtn}
-                  onPress={() => onRemovePlayer(player.id)}
-                >
-                  <Text style={styles.removeBtnText}>✕</Text>
-                </Pressable>
-              </View>
-            </Pressable>
-          ))
-        )}
-      </ScrollView>
-      </>
+              ))
+            )}
+          </ScrollView>
+        </>
       )}
     </View>
   );

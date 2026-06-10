@@ -1,4 +1,4 @@
-import { Player } from '../types';
+import type { Player } from '../types';
 
 export interface LayoutConfig {
   centerX: number;
@@ -15,8 +15,11 @@ export function calculateCirclePositions(
   players: Player[],
   width: number,
   height: number,
-  seatSize: number = 80,
-): { x: number; y: number }[] {
+  _seatSize: number = 80,
+): {
+  x: number;
+  y: number;
+}[] {
   const count = players.length;
   if (count === 0) return [];
 
@@ -27,7 +30,10 @@ export function calculateCirclePositions(
   return players.map((player, i) => {
     // If position is locked (manually dragged), keep it
     if (player.positionLocked) {
-      return { x: player.position.x, y: player.position.y };
+      return {
+        x: player.position.x,
+        y: player.position.y,
+      };
     }
 
     const angle = (2 * Math.PI * i) / count - Math.PI / 2;
@@ -47,7 +53,10 @@ export function calculateRoomPositions(
   width: number,
   height: number,
   seatSize: number = 80,
-): { x: number; y: number }[] {
+): {
+  x: number;
+  y: number;
+}[] {
   const count = players.length;
   if (count === 0) return [];
 
@@ -59,7 +68,10 @@ export function calculateRoomPositions(
 
   return players.map((player, i) => {
     if (player.positionLocked) {
-      return { x: player.position.x, y: player.position.y };
+      return {
+        x: player.position.x,
+        y: player.position.y,
+      };
     }
 
     // Distribute players along the 4 walls.
@@ -75,19 +87,31 @@ export function calculateRoomPositions(
     if (pos < topCount) {
       // Top wall
       const t = pos + 1;
-      return { x: centerX - roomW / 2 + t * spacingW, y: centerY - roomH / 2 - margin };
+      return {
+        x: centerX - roomW / 2 + t * spacingW,
+        y: centerY - roomH / 2 - margin,
+      };
     } else if (pos < topCount + sideCount) {
       // Right wall
       const t = pos - topCount + 1;
-      return { x: centerX + roomW / 2 + margin, y: centerY - roomH / 2 + t * spacingH };
+      return {
+        x: centerX + roomW / 2 + margin,
+        y: centerY - roomH / 2 + t * spacingH,
+      };
     } else if (pos < topCount * 2 + sideCount) {
       // Bottom wall (reverse order so they face inward)
       const t = topCount - (pos - topCount - sideCount);
-      return { x: centerX - roomW / 2 + t * spacingW, y: centerY + roomH / 2 + margin };
+      return {
+        x: centerX - roomW / 2 + t * spacingW,
+        y: centerY + roomH / 2 + margin,
+      };
     } else {
       // Left wall
       const t = sideCount - (pos - topCount * 2 - sideCount);
-      return { x: centerX - roomW / 2 - margin, y: centerY + roomH / 2 - t * spacingH };
+      return {
+        x: centerX - roomW / 2 - margin,
+        y: centerY + roomH / 2 - t * spacingH,
+      };
     }
   });
 }

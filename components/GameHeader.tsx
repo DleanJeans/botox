@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from './Icon';
 
 interface GameHeaderProps {
@@ -37,9 +36,12 @@ export default function GameHeader({
           <Text style={styles.backBtnText}>←</Text>
         </Pressable>
         <View style={styles.titleArea}>
-          <Text style={styles.title} numberOfLines={1}>{title}</Text>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
           <Text style={styles.subtitle}>
-            {playerCount} player{playerCount !== 1 ? 's' : ''} · Day {currentDay}
+            {playerCount} player{playerCount !== 1 ? 's' : ''} · Day{' '}
+            {currentDay}
           </Text>
         </View>
       </View>
@@ -48,9 +50,16 @@ export default function GameHeader({
       <View style={styles.actionRow}>
         <Pressable
           onPress={onToggleLayout}
-          style={[styles.actionBtn, layout === 'room' && styles.actionBtnActive]}
+          style={[
+            styles.actionBtn,
+            layout === 'room' && styles.actionBtnActive,
+          ]}
         >
-          <Icon name={layout === 'circle' ? 'circle' : 'square'} size={16} color="#ccc" />
+          <Icon
+            name={layout === 'circle' ? 'circle' : 'square'}
+            size={16}
+            color="#ccc"
+          />
           <Text style={styles.actionLabel}>
             {layout === 'circle' ? 'Circle' : 'Room'}
           </Text>
@@ -58,20 +67,40 @@ export default function GameHeader({
 
         <Pressable
           onPress={onToggleRoomDrag}
-          style={[styles.actionBtn, roomDraggable && styles.actionBtnDrag]}
+          style={[
+            styles.actionBtn,
+            roomDraggable && styles.actionBtnDrag,
+          ]}
         >
           <Icon name="move" size={16} color={roomDraggable ? '#000' : '#ccc'} />
-          <Text style={[styles.actionLabel, roomDraggable && styles.actionLabelEdit]}>
+          <Text
+            style={[
+              styles.actionLabel,
+              roomDraggable && styles.actionLabelEdit,
+            ]}
+          >
             {roomDraggable ? 'Save Room Position' : 'Move Room'}
           </Text>
         </Pressable>
 
         <Pressable
           onPress={onToggleEdit}
-          style={[styles.actionBtn, playerDraggable && styles.actionBtnEdit]}
+          style={[
+            styles.actionBtn,
+            playerDraggable && styles.actionBtnEdit,
+          ]}
         >
-          <Icon name="pencil" size={16} color={playerDraggable ? '#000' : '#ccc'} />
-          <Text style={[styles.actionLabel, playerDraggable && styles.actionLabelEdit]}>
+          <Icon
+            name="pencil"
+            size={16}
+            color={playerDraggable ? '#000' : '#ccc'}
+          />
+          <Text
+            style={[
+              styles.actionLabel,
+              playerDraggable && styles.actionLabelEdit,
+            ]}
+          >
             {playerDraggable ? 'Save Players Position' : 'Move Players'}
           </Text>
         </Pressable>

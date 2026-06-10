@@ -10,7 +10,11 @@ interface Props {
   onClear?: () => void;
 }
 
-export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: Props) {
+export default function RolePicker({
+  currentRoleId,
+  scriptRoleIds,
+  onSelect,
+}: Props) {
   // Get all roles, filtered by script if available
   const allRoles = Object.values(getRoles());
   const hasScript = scriptRoleIds && scriptRoleIds.length > 0;
@@ -19,12 +23,13 @@ export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: P
     : allRoles;
 
   // Group by team
-  
-  const grouped = TEAMS
-    .map(team => ({
-      team,
-      roles: filteredRoles.filter(r => r.team === team).sort((a, b) => a.name.localeCompare(b.name)),
-    }))
+
+  const grouped = TEAMS.map(team => ({
+    team,
+    roles: filteredRoles
+      .filter(r => r.team === team)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }))
     .filter(g => g.roles.length > 0)
     .sort((a, b) => (TEAM_ORDER[a.team] ?? 99) - (TEAM_ORDER[b.team] ?? 99));
 
@@ -32,7 +37,14 @@ export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: P
     <View style={styles.grid}>
       {grouped.map(group => (
         <View key={group.team}>
-          <Text style={[styles.teamLabel, { color: TEAM_COLORS[group.team] || '#fff' }]}>
+          <Text
+            style={[
+              styles.teamLabel,
+              {
+                color: TEAM_COLORS[group.team] || '#fff',
+              },
+            ]}
+          >
             {group.team.charAt(0).toUpperCase() + group.team.slice(1)}
           </Text>
           <View style={styles.row}>
@@ -41,11 +53,24 @@ export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: P
               return (
                 <Pressable
                   key={role.id}
-                  style={[styles.chip, active && styles.chipActive]}
+                  style={[
+                    styles.chip,
+                    active && styles.chipActive,
+                  ]}
                   onPress={() => onSelect(role.id)}
                 >
-                  <RoleIcon roleId={role.id} team={role.team} size={16} showBorder={false} />
-                  <Text style={[styles.chipText, active && styles.chipTextActive]}>
+                  <RoleIcon
+                    roleId={role.id}
+                    team={role.team}
+                    size={16}
+                    showBorder={false}
+                  />
+                  <Text
+                    style={[
+                      styles.chipText,
+                      active && styles.chipTextActive,
+                    ]}
+                  >
                     {role.name}
                   </Text>
                 </Pressable>
@@ -59,15 +84,43 @@ export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: P
 }
 
 const styles = StyleSheet.create({
-  grid: { marginTop: 8 },
-  teamLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 12, marginBottom: 6 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20,
-    backgroundColor: '#2f313a', borderWidth: 1, borderColor: '#3a3c43',
+  grid: {
+    marginTop: 8,
   },
-  chipActive: { borderColor: '#fcb93c', backgroundColor: '#3a2f1a' },
-  chipText: { color: '#ddd', fontSize: 12 },
-  chipTextActive: { color: '#fcb93c', fontWeight: '700' },
+  teamLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#2f313a',
+    borderWidth: 1,
+    borderColor: '#3a3c43',
+  },
+  chipActive: {
+    borderColor: '#fcb93c',
+    backgroundColor: '#3a2f1a',
+  },
+  chipText: {
+    color: '#ddd',
+    fontSize: 12,
+  },
+  chipTextActive: {
+    color: '#fcb93c',
+    fontWeight: '700',
+  },
 });

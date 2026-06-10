@@ -46,13 +46,31 @@ export default function PlayerBoard({
   onCastVote,
 }: PlayerBoardProps) {
   const [notes, setNotes] = useState(player.notes);
-  const [showRolePicker, setShowRolePicker] = useState<'guess' | 'claim' | null>(null);
+  const [showRolePicker, setShowRolePicker] = useState<
+    'guess' | 'claim' | null
+  >(null);
 
   const suspicionOptions = [
-    { level: 0, label: 'None', emoji: '⚪' },
-    { level: 1, label: 'Low', emoji: '🟢' },
-    { level: 2, label: 'Medium', emoji: '🟡' },
-    { level: 3, label: 'High', emoji: '🔴' },
+    {
+      level: 0,
+      label: 'None',
+      emoji: '⚪',
+    },
+    {
+      level: 1,
+      label: 'Low',
+      emoji: '🟢',
+    },
+    {
+      level: 2,
+      label: 'Medium',
+      emoji: '🟡',
+    },
+    {
+      level: 3,
+      label: 'High',
+      emoji: '🔴',
+    },
   ] as const;
 
   const [voteTarget, setVoteTarget] = useState<string | null>(null);
@@ -73,7 +91,10 @@ export default function PlayerBoard({
             <View style={styles.statusRow}>
               <Pressable
                 onPress={onToggleAlive}
-                style={[styles.statusBtn, player.isAlive ? styles.aliveBtn : styles.deadBtn]}
+                style={[
+                  styles.statusBtn,
+                  player.isAlive ? styles.aliveBtn : styles.deadBtn,
+                ]}
               >
                 <Text style={styles.statusBtnText}>
                   {player.isAlive ? 'Alive' : 'Dead'}
@@ -82,7 +103,10 @@ export default function PlayerBoard({
               {!player.isAlive && (
                 <Pressable
                   onPress={onToggleGhostVote}
-                  style={[styles.statusBtn, player.isGhostVote ? styles.ghostOnBtn : styles.ghostOffBtn]}
+                  style={[
+                    styles.statusBtn,
+                    player.isGhostVote ? styles.ghostOnBtn : styles.ghostOffBtn,
+                  ]}
                 >
                   <Text style={styles.statusBtnText}>
                     {player.isGhostVote ? 'Ghost vote' : 'No ghost vote'}
@@ -106,7 +130,13 @@ export default function PlayerBoard({
                   onPress={() => onSetSuspicion(opt.level)}
                 >
                   <Text style={styles.suspicionEmoji}>{opt.emoji}</Text>
-                  <Text style={[styles.suspicionLabel, player.suspicion === opt.level && styles.suspicionLabelActive]}>
+                  <Text
+                    style={[
+                      styles.suspicionLabel,
+                      player.suspicion === opt.level &&
+                        styles.suspicionLabelActive,
+                    ]}
+                  >
                     {opt.label}
                   </Text>
                 </Pressable>
@@ -117,7 +147,9 @@ export default function PlayerBoard({
             <Text style={styles.sectionTitle}>Role Guess</Text>
             <Pressable
               style={styles.rolePickerBtn}
-              onPress={() => setShowRolePicker(showRolePicker === 'guess' ? null : 'guess')}
+              onPress={() =>
+                setShowRolePicker(showRolePicker === 'guess' ? null : 'guess')
+              }
             >
               <Text style={styles.rolePickerText}>
                 {player.guessedRole
@@ -131,7 +163,12 @@ export default function PlayerBoard({
               )}
             </Pressable>
             {showRolePicker === 'guess' && (
-              <View style={{ gap: 4, marginTop: 8 }}>
+              <View
+                style={{
+                  gap: 4,
+                  marginTop: 8,
+                }}
+              >
                 {(scriptRoleIds && scriptRoleIds.length > 0
                   ? scriptRoleIds.map(id => getRoles()[id]).filter(Boolean)
                   : Object.values(getRoles())
@@ -139,7 +176,10 @@ export default function PlayerBoard({
                   <RoleCard
                     key={role.id}
                     role={role}
-                    onSelect={(id) => { onSetGuessedRole(id); setShowRolePicker(null); }}
+                    onSelect={id => {
+                      onSetGuessedRole(id);
+                      setShowRolePicker(null);
+                    }}
                   />
                 ))}
               </View>
@@ -149,7 +189,9 @@ export default function PlayerBoard({
             <Text style={styles.sectionTitle}>Claimed Role</Text>
             <Pressable
               style={styles.rolePickerBtn}
-              onPress={() => setShowRolePicker(showRolePicker === 'claim' ? null : 'claim')}
+              onPress={() =>
+                setShowRolePicker(showRolePicker === 'claim' ? null : 'claim')
+              }
             >
               <Text style={styles.rolePickerText}>
                 {player.claimedRole
@@ -163,7 +205,12 @@ export default function PlayerBoard({
               )}
             </Pressable>
             {showRolePicker === 'claim' && (
-              <View style={{ gap: 4, marginTop: 8 }}>
+              <View
+                style={{
+                  gap: 4,
+                  marginTop: 8,
+                }}
+              >
                 {(scriptRoleIds && scriptRoleIds.length > 0
                   ? scriptRoleIds.map(id => getRoles()[id]).filter(Boolean)
                   : Object.values(getRoles())
@@ -171,7 +218,10 @@ export default function PlayerBoard({
                   <RoleCard
                     key={role.id}
                     role={role}
-                    onSelect={(id) => { onSetClaimedRole(id); setShowRolePicker(null); }}
+                    onSelect={id => {
+                      onSetClaimedRole(id);
+                      setShowRolePicker(null);
+                    }}
                   />
                 ))}
               </View>
@@ -182,7 +232,11 @@ export default function PlayerBoard({
               <>
                 <Text style={styles.sectionTitle}>Cast Vote</Text>
                 <Text style={styles.voteDayLabel}>Day {currentDay || '?'}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.voteTargetRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.voteTargetRow}
+                >
                   {gamePlayers
                     .filter(p => p.id !== player.id)
                     .map(target => (
@@ -192,14 +246,22 @@ export default function PlayerBoard({
                           styles.voteTargetChip,
                           voteTarget === target.id && styles.voteTargetActive,
                         ]}
-                        onPress={() => setVoteTarget(voteTarget === target.id ? null : target.id)}
+                        onPress={() =>
+                          setVoteTarget(
+                            voteTarget === target.id ? null : target.id,
+                          )
+                        }
                       >
-                        <Text style={styles.voteTargetText}>
-                          {target.name}
-                        </Text>
+                        <Text style={styles.voteTargetText}>{target.name}</Text>
                         <View style={styles.voteTargetRole}>
-                          {target.guessedRole && getRoles()[target.guessedRole] ? (
-                            <RoleIcon roleId={getRoles()[target.guessedRole].id} team={getRoles()[target.guessedRole].team} size={16} showBorder={false} />
+                          {target.guessedRole &&
+                          getRoles()[target.guessedRole] ? (
+                            <RoleIcon
+                              roleId={getRoles()[target.guessedRole].id}
+                              team={getRoles()[target.guessedRole].team}
+                              size={16}
+                              showBorder={false}
+                            />
                           ) : null}
                         </View>
                       </Pressable>
@@ -260,7 +322,11 @@ export default function PlayerBoard({
               </>
             )}
 
-            <View style={{ height: 40 }} />
+            <View
+              style={{
+                height: 40,
+              }}
+            />
           </ScrollView>
         </View>
       </View>

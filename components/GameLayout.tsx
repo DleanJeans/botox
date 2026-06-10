@@ -1,12 +1,5 @@
-import React, { useState, ReactNode } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Animated,
-  useWindowDimensions,
-} from 'react-native';
+import React, { type ReactNode, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface GameLayoutProps {
   /** The main game area (circle/room view) */
@@ -70,9 +63,14 @@ export default function GameLayout({
       {showLeftPanel && (
         <View style={styles.panelOverlay}>
           <View style={styles.panelLeft}>
-            {React.cloneElement(playerListPanel as React.ReactElement<{onClose?: () => void}>, {
-              onClose: () => setShowLeftPanel(false),
-            })}
+            {React.cloneElement(
+              playerListPanel as React.ReactElement<{
+                onClose?: () => void;
+              }>,
+              {
+                onClose: () => setShowLeftPanel(false),
+              },
+            )}
           </View>
           <Pressable
             style={styles.panelBackdrop}
@@ -85,9 +83,14 @@ export default function GameLayout({
       {showRightPanel && (
         <View style={styles.panelOverlay}>
           <View style={styles.panelRight}>
-            {React.cloneElement(roleBrowserPanel as React.ReactElement<{onClose?: () => void}>, {
-              onClose: () => setShowRightPanel(false),
-            })}
+            {React.cloneElement(
+              roleBrowserPanel as React.ReactElement<{
+                onClose?: () => void;
+              }>,
+              {
+                onClose: () => setShowRightPanel(false),
+              },
+            )}
           </View>
           <Pressable
             style={styles.panelBackdrop}

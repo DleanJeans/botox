@@ -1,18 +1,61 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import * as Lucide from 'lucide-react-native';
+import type React from 'react';
+import { Text } from 'react-native';
 
 type IconName =
-  | 'theater' | 'scroll' | 'users' | 'book' | 'moon' | 'sun'
-  | 'pencil' | 'circle' | 'square' | 'heart' | 'skull' | 'ghost'
-  | 'x' | 'check' | 'arrowLeft' | 'arrowRight' | 'chevronDown'
-  | 'chevronUp' | 'trash2' | 'user' | 'plus' | 'menu' | 'search'
-  | 'dice' | 'package' | 'messageCircle' | 'edit3' | 'settings'
-  | 'alertCircle' | 'info' | 'star' | 'mail' | 'discord'
-  | 'home' | 'gamepad2' | 'list' | 'filter' | 'moreHorizontal'
-  | 'crown' | 'target' | 'eye' | 'eyeOff' | 'smartphone'
-  | 'monitor' | 'tablet' | 'play' | 'pause' | 'chevronLeft'
-  | 'chevronRight' | 'download' | 'upload' | 'save' | 'refreshCw'
+  | 'theater'
+  | 'scroll'
+  | 'users'
+  | 'book'
+  | 'moon'
+  | 'sun'
+  | 'pencil'
+  | 'circle'
+  | 'square'
+  | 'heart'
+  | 'skull'
+  | 'ghost'
+  | 'x'
+  | 'check'
+  | 'arrowLeft'
+  | 'arrowRight'
+  | 'chevronDown'
+  | 'chevronUp'
+  | 'trash2'
+  | 'user'
+  | 'plus'
+  | 'menu'
+  | 'search'
+  | 'dice'
+  | 'package'
+  | 'messageCircle'
+  | 'edit3'
+  | 'settings'
+  | 'alertCircle'
+  | 'info'
+  | 'star'
+  | 'mail'
+  | 'discord'
+  | 'home'
+  | 'gamepad2'
+  | 'list'
+  | 'filter'
+  | 'moreHorizontal'
+  | 'crown'
+  | 'target'
+  | 'eye'
+  | 'eyeOff'
+  | 'smartphone'
+  | 'monitor'
+  | 'tablet'
+  | 'play'
+  | 'pause'
+  | 'chevronLeft'
+  | 'chevronRight'
+  | 'download'
+  | 'upload'
+  | 'save'
+  | 'refreshCw'
   | 'move';
 
 const ICON_MAP: Record<string, IconName> = {
@@ -131,14 +174,18 @@ export default function Icon({
 
   if (!LucideComponent) {
     // Fallback: render the raw emoji
-    return <Text style={{ fontSize: size }}>{name}</Text>;
+    return (
+      <Text
+        style={{
+          fontSize: size,
+        }}
+      >
+        {name}
+      </Text>
+    );
   }
 
   return (
-    <LucideComponent
-      size={size}
-      color={color}
-      strokeWidth={strokeWidth}
-    />
+    <LucideComponent size={size} color={color} strokeWidth={strokeWidth} />
   );
 }

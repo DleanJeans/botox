@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, useWindowDimensions, PanResponder } from 'react-native';
-import { Game } from '../types';
+import { useEffect, useRef, useState } from 'react';
+import {
+  PanResponder,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import type { Game } from '../types';
 import { calculateCirclePositions } from '../utils/layout';
 import PlayerSeat from './PlayerSeat';
 
@@ -20,7 +26,13 @@ function ConnectingLines({
   width,
   height,
 }: {
-  positions: Record<string, { x: number; y: number }>;
+  positions: Record<
+    string,
+    {
+      x: number;
+      y: number;
+    }
+  >;
   playerIds: string[];
   width: number;
   height: number;
@@ -34,7 +46,7 @@ function ConnectingLines({
     const p2 = positions[playerIds[j]];
     if (!p1 || !p2) continue;
     lines.push(
-      `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />`
+      `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />`,
     );
   }
 
@@ -65,25 +77,45 @@ export default function PlayerCircle({
 }: PlayerCircleProps) {
   const { width, height } = useWindowDimensions();
   const seatSize = Math.min(80, Math.min(width, height) * 0.16);
-  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [positions, setPositions] = useState<
+    Record<
+      string,
+      {
+        x: number;
+        y: number;
+      }
+    >
+  >({});
   const initialized = useRef(false);
 
   // ── Canvas pan offset ──
   const STORAGE_KEY = 'grim-player-circle-pan';
-  const loadPan = (): { x: number; y: number } => {
+  const loadPan = (): {
+    x: number;
+    y: number;
+  } => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw);
     } catch {}
-    return { x: 0, y: 0 };
+    return {
+      x: 0,
+      y: 0,
+    };
   };
   const savePan = (pos: { x: number; y: number }) => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pos));
+    } catch {}
   };
 
   const initialPan = useRef(loadPan());
-  const panOffset = useRef({ ...initialPan.current });
-  const [pan, setPan] = useState({ ...initialPan.current });
+  const panOffset = useRef({
+    ...initialPan.current,
+  });
+  const [pan, setPan] = useState({
+    ...initialPan.current,
+  });
   const dragRef = useRef(dragMode);
   dragRef.current = dragMode;
 
@@ -93,27 +125,47 @@ export default function PlayerCircle({
       onMoveShouldSetPanResponder: () => dragRef.current,
       onPanResponderGrant: () => {},
       onPanResponderMove: (_, gs) => {
-        setPan({ x: panOffset.current.x + gs.dx, y: panOffset.current.y + gs.dy });
+        setPan({
+          x: panOffset.current.x + gs.dx,
+          y: panOffset.current.y + gs.dy,
+        });
       },
       onPanResponderRelease: (_, gs) => {
         panOffset.current.x += gs.dx;
         panOffset.current.y += gs.dy;
         savePan(panOffset.current);
-        setPan({ ...panOffset.current });
+        setPan({
+          ...panOffset.current,
+        });
       },
       onPanResponderTerminate: () => {
         savePan(panOffset.current);
-        setPan({ ...panOffset.current });
+        setPan({
+          ...panOffset.current,
+        });
       },
-    })
+    }),
   ).current;
 
   useEffect(() => {
     if (game.players.length === 0) return;
-    const circlePositions = calculateCirclePositions(game.players, width, height, seatSize);
-    const newPositions: Record<string, { x: number; y: number }> = {};
+    const circlePositions = calculateCirclePositions(
+      game.players,
+      width,
+      height,
+      seatSize,
+    );
+    const newPositions: Record<
+      string,
+      {
+        x: number;
+        y: number;
+      }
+    > = {};
     game.players.forEach((player, i) => {
-      newPositions[player.id] = player.positionLocked ? player.position : circlePositions[i];
+      newPositions[player.id] = player.positionLocked
+        ? player.position
+        : circlePositions[i];
     });
     setPositions(newPositions);
 
@@ -121,11 +173,23 @@ export default function PlayerCircle({
       initialized.current = true;
       game.players.forEach((player, i) => {
         if (!player.positionLocked) {
-          onUpdatePosition(player.id, circlePositions[i].x, circlePositions[i].y);
+          onUpdatePosition(
+            player.id,
+            circlePositions[i].x,
+            circlePositions[i].y,
+          );
         }
       });
     }
-  }, [game.players.length, width, height]);
+  }, [
+    game.players.length,
+    width,
+    height,
+    onUpdatePosition,
+    seatSize,
+    game.players.forEach,
+    game.players,
+  ]);
 
   if (game.players.length === 0) {
     return (
@@ -141,7 +205,16 @@ export default function PlayerCircle({
       <View
         style={[
           styles.canvas,
-          { transform: [{ translateX: pan.x }, { translateY: pan.y }] },
+          {
+            transform: [
+              {
+                translateX: pan.x,
+              },
+              {
+                translateY: pan.y,
+              },
+            ],
+          },
         ]}
         pointerEvents="box-none"
       >
@@ -158,7 +231,10 @@ export default function PlayerCircle({
           return (
             <PlayerSeat
               key={player.id}
-              player={{ ...player, position: pos }}
+              player={{
+                ...player,
+                position: pos,
+              }}
               size={seatSize}
               editMode={game.editMode}
               panX={pan.x}
@@ -167,7 +243,13 @@ export default function PlayerCircle({
               onDragStart={() => {}}
               onDragMove={(x, y) => {
                 onUpdatePosition(player.id, x, y);
-                setPositions(prev => ({ ...prev, [player.id]: { x, y } }));
+                setPositions(prev => ({
+                  ...prev,
+                  [player.id]: {
+                    x,
+                    y,
+                  },
+                }));
               }}
               onDragEnd={() => onLockPosition(player.id)}
             />
@@ -185,7 +267,10 @@ const styles = StyleSheet.create({
   },
   canvas: {
     position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   empty: {
     flex: 1,

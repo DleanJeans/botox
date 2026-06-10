@@ -28,18 +28,11 @@
               "scheme": "exp+grim-keeper"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
-    "plugins": [
-      "expo-router",
-      "expo-status-bar",
-      "./plugins/withJVMMemory"
-    ],
+    "plugins": ["expo-router", "expo-status-bar", "./plugins/withJVMMemory"],
     "extra": {
       "router": {},
       "eas": {
