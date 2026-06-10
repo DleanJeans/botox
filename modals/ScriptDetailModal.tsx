@@ -62,7 +62,6 @@ export default function ScriptDetailModal({
           <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
             {grouped.map(group => (
               <View key={group.team}>
-                <Text>{group.team}</Text>
                 <Text
                   style={[
                     styles.teamLabel,
