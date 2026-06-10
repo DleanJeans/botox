@@ -15,14 +15,20 @@ interface ScriptDetailModalProps {
   visible: boolean;
   scriptName: string;
   roleIds: string[];
+  author?: string;
+  version?: string;
   onClose: () => void;
+  onSave?: () => void;
 }
 
 export default function ScriptDetailModal({
   visible,
   scriptName,
   roleIds,
+  author,
+  version,
   onClose,
+  onSave,
 }: ScriptDetailModalProps) {
   // Group roles by team
 
@@ -56,7 +62,7 @@ export default function ScriptDetailModal({
               <Text style={styles.closeBtnText}>✕</Text>
             </Pressable>
           </View>
-          <Text style={styles.subtitle}>{roleIds.length} roles</Text>
+          <Text style={styles.subtitle}>{roleIds.length} roles · by {author || 'Unknown'} · v{version}</Text>
 
           {/* Role list */}
           <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
@@ -103,6 +109,15 @@ export default function ScriptDetailModal({
               }}
             />
           </ScrollView>
+
+          {/* Save button */}
+          {onSave && (
+            <View style={styles.footer}>
+              <Pressable style={styles.saveBtn} onPress={onSave}>
+                <Text style={styles.saveBtnText}>Save Script</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
     </Modal>
@@ -126,6 +141,7 @@ const styles = StyleSheet.create({
     maxWidth: 900,
     alignSelf: 'center',
     width: '100%',
+    flexDirection: 'column',
   },
   header: {
     flexDirection: 'row',
@@ -196,5 +212,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     marginTop: 16,
+  },
+  footer: {
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#2a2c30',
+  },
+  saveBtn: {
+    backgroundColor: '#166534',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  saveBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });

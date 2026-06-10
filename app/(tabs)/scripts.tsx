@@ -26,6 +26,8 @@ export default function ScriptsScreen() {
   const [detailScript, setDetailScript] = useState<{
     name: string;
     roleIds: string[];
+    author: string;
+    version: string;
   } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
@@ -96,6 +98,18 @@ export default function ScriptsScreen() {
     }
   };
 
+  const handleSaveFromDetail = () => {
+    if (!detailScript) return;
+    saveScript(
+      detailScript.name,
+      detailScript.author,
+      detailScript.version,
+      detailScript.roleIds,
+    );
+    useSavedScriptStore.getState().loadScripts();
+    setDetailScript(null);
+  };
+
   const commonBrowseProps = {
     searchQuery,
     setSearchQuery,
@@ -105,10 +119,12 @@ export default function ScriptsScreen() {
     importedScripts,
     downloading,
     handleDownload,
-    onPreview: (name: string, roleIds: string[]) =>
+    onPreview: (name: string, roleIds: string[], author: string, version: string) =>
       setDetailScript({
         name,
         roleIds,
+        author,
+        version,
       }),
   };
 
@@ -150,10 +166,12 @@ export default function ScriptsScreen() {
               <ScriptSavedTab
                 importedScripts={importedScripts}
                 builtinScripts={builtinScripts}
-                onScriptPress={(name, roleIds) =>
+                onScriptPress={(name, roleIds, author, version) =>
                   setDetailScript({
                     name,
                     roleIds,
+                    author,
+                    version,
                   })
                 }
                 onDeleteScript={handleDeleteSaved}
@@ -209,10 +227,12 @@ export default function ScriptsScreen() {
               <ScriptSavedTab
                 importedScripts={importedScripts}
                 builtinScripts={builtinScripts}
-                onScriptPress={(name, roleIds) =>
+                onScriptPress={(name, roleIds, author, version) =>
                   setDetailScript({
                     name,
                     roleIds,
+                    author,
+                    version,
                   })
                 }
                 onDeleteScript={handleDeleteSaved}
@@ -227,7 +247,10 @@ export default function ScriptsScreen() {
           visible={!!detailScript}
           scriptName={detailScript.name}
           roleIds={detailScript.roleIds}
+          author={detailScript.author}
+          version={detailScript.version}
           onClose={() => setDetailScript(null)}
+          onSave={handleSaveFromDetail}
         />
       )}
 

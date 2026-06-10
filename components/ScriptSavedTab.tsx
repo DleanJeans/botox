@@ -4,7 +4,7 @@ import type { SavedScript, Script } from '../types';
 interface Props {
   importedScripts: SavedScript[];
   builtinScripts: Script[];
-  onScriptPress: (name: string, roleIds: string[]) => void;
+  onScriptPress: (name: string, roleIds: string[], author: string, version: string) => void;
   onDeleteScript: (id: string, name: string) => void;
 }
 
@@ -17,7 +17,7 @@ export default function ScriptSavedTab({
   const renderSaved = ({ item }: { item: SavedScript }) => (
     <Pressable
       style={s.card}
-      onPress={() => onScriptPress(item.name, item.roleIds)}
+      onPress={() => onScriptPress(item.name, item.roleIds, item.author || 'Unknown', item.version)}
       onLongPress={() => onDeleteScript(item.id, item.name)}
     >
       <View style={s.cardBody}>
@@ -75,7 +75,7 @@ export default function ScriptSavedTab({
         <Pressable
           key={script.id}
           style={s.card}
-          onPress={() => onScriptPress(script.name, script.roles)}
+          onPress={() => onScriptPress(script.name, script.roles, 'Clocktower', '1.0')}
         >
           <View style={s.cardBody}>
             <Text style={s.cardName}>{script.name}</Text>

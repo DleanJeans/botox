@@ -20,7 +20,7 @@ interface Props {
   importedScripts: ReturnType<typeof useSavedScriptStore.getState>['scripts'];
   downloading: string | null;
   handleDownload: (script: BotcScriptResult) => void;
-  onPreview?: (name: string, roleIds: string[]) => void;
+  onPreview?: (name: string, roleIds: string[], author: string, version: string) => void;
 }
 
 export default function ScriptBrowseTab({
@@ -71,6 +71,8 @@ export default function ScriptBrowseTab({
               onPreview?.(
                 item.name,
                 item.content.filter(c => c.id !== '_meta').map(c => c.id),
+                item.author || 'Unknown',
+                item.version,
               )
             }
           >
