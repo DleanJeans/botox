@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
-import { TEAMS } from '../constants';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import RoleIcon from '../components/RoleIcon';
+import { TEAMS } from '../constants';
+import { getRoles, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
 
 interface Props {
   name: string;
@@ -15,13 +14,13 @@ export default function ScriptDetailPanel({ name, roleIds, onClose }: Props) {
     .map(team => ({
       team,
       roles: roleIds
-        .map(id => ROLES[id])
+        .map(id => getRoles()[id])
         .filter((r): r is NonNullable<typeof r> => r !== undefined && r.team === team),
     }))
     .filter(g => g.roles.length > 0)
     .sort((a, b) => (TEAM_ORDER[a.team] ?? 99) - (TEAM_ORDER[b.team] ?? 99));
 
-  const unknownCount = roleIds.filter(id => !ROLES[id]).length;
+  const unknownCount = roleIds.filter(id => !getRoles()[id]).length;
 
   return (
     <View style={styles.container}>

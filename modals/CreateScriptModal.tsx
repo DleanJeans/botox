@@ -1,10 +1,16 @@
-import React, { useState, useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
-import { TEAMS } from '../constants';
 import RoleIcon from '../components/RoleIcon';
+import { TEAMS } from '../constants';
+import { getRoles, TEAM_COLORS } from '../data/roles';
 
 export default function CreateScriptModal({ visible, onClose, onSave }: Props) {
   const [name, setName] = useState('');
@@ -26,7 +32,7 @@ export default function CreateScriptModal({ visible, onClose, onSave }: Props) {
   }, [gridWidth, numColumns]);
 
   const rolesByTeam = useMemo(() => {
-    const list = Object.values(ROLES);
+    const list = Object.values(getRoles());
     return TEAMS.map(team => ({
       team,
       roles: list.filter(r => r.team === team).sort((a, b) => a.name.localeCompare(b.name)),
@@ -81,7 +87,7 @@ export default function CreateScriptModal({ visible, onClose, onSave }: Props) {
             blurOnSubmit={false}
             onSubmitEditing={() => {
               // Select first filtered role on Enter
-              const allRoles = Object.values(ROLES).filter(r =>
+              const allRoles = Object.values(getRoles()).filter(r =>
                 r.name.toLowerCase().includes(search.toLowerCase())
               );
               if (allRoles.length > 0) {

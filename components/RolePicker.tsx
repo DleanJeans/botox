@@ -1,7 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { TEAMS } from '../constants';
+import { getRoles, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
 import RoleIcon from './RoleIcon';
 
 interface Props {
@@ -13,10 +12,10 @@ interface Props {
 
 export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: Props) {
   // Get all roles, filtered by script if available
-  const allRoles = Object.values(ROLES);
+  const allRoles = Object.values(getRoles());
   const hasScript = scriptRoleIds && scriptRoleIds.length > 0;
   const filteredRoles = hasScript
-    ? scriptRoleIds.map(id => ROLES[id]).filter(Boolean)
+    ? scriptRoleIds.map(id => getRoles()[id]).filter(Boolean)
     : allRoles;
 
   // Group by team

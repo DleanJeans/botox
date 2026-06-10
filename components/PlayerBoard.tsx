@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  TextInput,
   Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { Player, Role, VoteRecord } from '../types';
-import { ROLES } from '../data/roles';
+import { getRoles } from '../data/roles';
 import { getScriptRoles } from '../data/scripts';
+import type { Player } from '../types';
 import RoleCard from './RoleCard';
 import RoleIcon from './RoleIcon';
 
@@ -121,7 +121,7 @@ export default function PlayerBoard({
             >
               <Text style={styles.rolePickerText}>
                 {player.guessedRole
-                  ? `${ROLES[player.guessedRole]?.name || player.guessedRole}`
+                  ? `${getRoles()[player.guessedRole]?.name || player.guessedRole}`
                   : 'Tap to set a guess...'}
               </Text>
               {player.guessedRole && (
@@ -133,8 +133,8 @@ export default function PlayerBoard({
             {showRolePicker === 'guess' && (
               <View style={{ gap: 4, marginTop: 8 }}>
                 {(scriptRoleIds && scriptRoleIds.length > 0
-                  ? scriptRoleIds.map(id => ROLES[id]).filter(Boolean)
-                  : Object.values(ROLES)
+                  ? scriptRoleIds.map(id => getRoles()[id]).filter(Boolean)
+                  : Object.values(getRoles())
                 ).map(role => (
                   <RoleCard
                     key={role.id}
@@ -153,7 +153,7 @@ export default function PlayerBoard({
             >
               <Text style={styles.rolePickerText}>
                 {player.claimedRole
-                  ? `${ROLES[player.claimedRole]?.name || player.claimedRole}`
+                  ? `${getRoles()[player.claimedRole]?.name || player.claimedRole}`
                   : 'Tap to set what they claimed...'}
               </Text>
               {player.claimedRole && (
@@ -165,8 +165,8 @@ export default function PlayerBoard({
             {showRolePicker === 'claim' && (
               <View style={{ gap: 4, marginTop: 8 }}>
                 {(scriptRoleIds && scriptRoleIds.length > 0
-                  ? scriptRoleIds.map(id => ROLES[id]).filter(Boolean)
-                  : Object.values(ROLES)
+                  ? scriptRoleIds.map(id => getRoles()[id]).filter(Boolean)
+                  : Object.values(getRoles())
                 ).map(role => (
                   <RoleCard
                     key={role.id}
@@ -198,8 +198,8 @@ export default function PlayerBoard({
                           {target.name}
                         </Text>
                         <View style={styles.voteTargetRole}>
-                          {target.guessedRole && ROLES[target.guessedRole] ? (
-                            <RoleIcon roleId={ROLES[target.guessedRole].id} team={ROLES[target.guessedRole].team} size={16} showBorder={false} />
+                          {target.guessedRole && getRoles()[target.guessedRole] ? (
+                            <RoleIcon roleId={getRoles()[target.guessedRole].id} team={getRoles()[target.guessedRole].team} size={16} showBorder={false} />
                           ) : null}
                         </View>
                       </Pressable>

@@ -1,14 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
 } from 'react-native';
-import { Game } from '../types';
-import { ROLES, TEAM_COLORS } from '../data/roles';
+import { getRoles } from '../data/roles';
+import type { Game } from '../types';
 import ConversationPanel from './ConversationPanel';
 import RoleIcon from './RoleIcon';
 
@@ -193,22 +193,22 @@ export default function PlayerListPanel({
                   <View style={styles.roleRow}>
                     {player.guessedRole && (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                        {ROLES[player.guessedRole] && (
-                          <RoleIcon roleId={ROLES[player.guessedRole].id} team={ROLES[player.guessedRole].team} size={14} showBorder={false} />
+                        {getRoles()[player.guessedRole] && (
+                          <RoleIcon roleId={getRoles()[player.guessedRole].id} team={getRoles()[player.guessedRole].team} size={14} showBorder={false} />
                         )}
                         <Text style={styles.guessedRole} numberOfLines={1}>
-                          {ROLES[player.guessedRole]?.name || player.guessedRole}
+                          {getRoles()[player.guessedRole]?.name || player.guessedRole}
                         </Text>
                       </View>
                     )}
                     {player.claimedRole &&
                       player.claimedRole !== player.guessedRole && (
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                          {ROLES[player.claimedRole] && (
-                            <RoleIcon roleId={ROLES[player.claimedRole].id} team={ROLES[player.claimedRole].team} size={14} showBorder={false} />
+                          {getRoles()[player.claimedRole] && (
+                            <RoleIcon roleId={getRoles()[player.claimedRole].id} team={getRoles()[player.claimedRole].team} size={14} showBorder={false} />
                           )}
                           <Text style={styles.claimedRole} numberOfLines={1}>
-                            claims {ROLES[player.claimedRole]?.name || player.claimedRole}
+                            claims {getRoles()[player.claimedRole]?.name || player.claimedRole}
                           </Text>
                         </View>
                       )}

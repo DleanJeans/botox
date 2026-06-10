@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
+import { getRoles, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
 import { TEAMS } from '../constants';
 import RoleIcon from '../components/RoleIcon';
 
@@ -19,17 +19,20 @@ export default function ScriptDetailModal({
 }: ScriptDetailModalProps) {
   // Group roles by team
   
+  const roles = getRoles();
   const grouped = TEAMS
     .map(team => ({
       team,
       roles: roleIds
-        .map(id => ROLES[id])
+        .map(id => roles[id])
         .filter((r): r is NonNullable<typeof r> => r !== undefined && r.team === team),
     }))
     .filter(g => g.roles.length > 0)
     .sort((a, b) => (TEAM_ORDER[a.team] ?? 99) - (TEAM_ORDER[b.team] ?? 99));
 
-  const unknownCount = roleIds.filter(id => !ROLES[id]).length;
+  const unknownCount = roleIds.filter(id => !roles[id]).length;
+
+  console.log({ grouped, unknownCount})
 
   return (
     <Modal visible={visible} transparent animationType="slide">
@@ -48,6 +51,7 @@ export default function ScriptDetailModal({
           <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
             {grouped.map(group => (
               <View key={group.team}>
+                <Text>{group.team}</Text>
                 <Text style={[styles.teamLabel, { color: TEAM_COLORS[group.team] }]}>
                   {group.team.charAt(0).toUpperCase() + group.team.slice(1)} ({group.roles.length})
                 </Text>
@@ -84,7 +88,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: '#1e1f23', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    maxHeight: '85%', paddingTop: 16, paddingHorizontal: 20,
+    height: Dimensions.get('window').height * 0.85, paddingTop: 16, paddingHorizontal: 20,
     maxWidth: 900, alignSelf: 'center', width: '100%',
   },
   header: {

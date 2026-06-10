@@ -1,17 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
 } from 'react-native';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { getRoles, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
 import { getScriptRoles } from '../data/scripts';
-import ScriptSearchPanel from './ScriptSearchPanel';
-import RoleIcon from './RoleIcon';
 import RoleCard from './RoleCard';
+import RoleIcon from './RoleIcon';
+import ScriptSearchPanel from './ScriptSearchPanel';
 
 type ViewMode = 'all' | 'script' | 'night' | 'search';
 
@@ -41,7 +41,7 @@ export default function RoleBrowser({
   );
 
   const filteredRoles = useMemo(() => {
-    let roles = Object.values(ROLES);
+    let roles = Object.values(getRoles());
 
     // Filter by view mode
     if (viewMode === 'script' && scriptRoleIds.length > 0) {
@@ -76,7 +76,7 @@ export default function RoleBrowser({
   }, [viewMode, scriptRoleIds, selectedTeam, search]);
 
   const roleTeams = useMemo(() => {
-    const teams = new Set(Object.values(ROLES).map(r => r.team));
+    const teams = new Set(Object.values(getRoles()).map(r => r.team));
     return Array.from(teams).sort(
       (a, b) => (TEAM_ORDER[a] ?? 99) - (TEAM_ORDER[b] ?? 99)
     );
@@ -84,11 +84,11 @@ export default function RoleBrowser({
 
   // Night order roles
   const nightRoles = useMemo(() => {
-    const firstNight = Object.values(ROLES)
+    const firstNight = Object.values(getRoles())
       .filter(r => r.firstNight !== undefined)
       .sort((a, b) => (a.firstNight ?? 0) - (b.firstNight ?? 0));
 
-    const otherNight = Object.values(ROLES)
+    const otherNight = Object.values(getRoles())
       .filter(r => r.otherNight !== undefined)
       .sort((a, b) => (a.otherNight ?? 0) - (b.otherNight ?? 0));
 

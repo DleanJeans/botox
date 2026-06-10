@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  TextInput,
-} from 'react-native';
-import { Game, Player } from '../types';
-import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TextInput,
+	View,
+} from "react-native";
 import { TEAMS } from '../constants';
+import { getRoles, TEAM_COLORS } from "../data/roles";
 import { useGameStore } from '../hooks/useGameStore';
-import ScriptSearchPanel from './ScriptSearchPanel';
-import RoleIcon from './RoleIcon';
+import type { Game, Player } from "../types";
+import RoleIcon from "./RoleIcon";
+import ScriptSearchPanel from "./ScriptSearchPanel";
 
 type PanelTab = 'players' | 'roles' | 'night' | 'notes' | 'search';
 
@@ -149,18 +149,19 @@ function PlayersPanel({
 // ─── Roles Panel ────────────────────────────────────────────────
 function RolesPanel() {
   
-  const rolesByTeam = TEAMS.map(team => ({
-    team,
-    roles: Object.values(ROLES).filter(r => r.team === team),
-  }));
+  const rolesByTeam = TEAMS.map((team) => ({
+			team,
+			roles: Object.values(getRoles()).filter((r) => r.team === team),
+		}));
   const [search, setSearch] = useState('');
 
   const filtered = search.trim()
-    ? Object.values(ROLES).filter(r =>
-        r.name.toLowerCase().includes(search.toLowerCase()) ||
-        r.ability.toLowerCase().includes(search.toLowerCase())
-      )
-    : null;
+			? Object.values(getRoles()).filter(
+					(r) =>
+						r.name.toLowerCase().includes(search.toLowerCase()) ||
+						r.ability.toLowerCase().includes(search.toLowerCase()),
+				)
+			: null;
 
   return (
     <View style={styles.panelContent}>
@@ -200,18 +201,24 @@ function RolesPanel() {
 // ─── Night Panel ────────────────────────────────────────────────
 function NightPanel({ game }: { game: Game }) {
   // Collect all roles that have night actions
-  const nightRoles = game.players
-    .filter(p => p.guessedRole && ROLES[p.guessedRole])
-    .map(p => ({
-      playerName: p.name,
-      role: ROLES[p.guessedRole!],
-    }))
-    .filter(({ role }) => role.firstNight || role.otherNight)
-    .sort((a, b) => {
-      const aOrder = game.currentDay === 1 ? (a.role.firstNight || 99) : (a.role.otherNight || 99);
-      const bOrder = game.currentDay === 1 ? (b.role.firstNight || 99) : (b.role.otherNight || 99);
-      return aOrder - bOrder;
-    });
+		const nightRoles = game.players
+			.filter((p) => p.guessedRole && getRoles()[p.guessedRole])
+			.map((p) => ({
+				playerName: p.name,
+				role: getRoles()[p.guessedRole!],
+			}))
+			.filter(({ role }) => role.firstNight || role.otherNight)
+			.sort((a, b) => {
+				const aOrder =
+					game.currentDay === 1
+						? a.role.firstNight || 99
+						: a.role.otherNight || 99;
+				const bOrder =
+					game.currentDay === 1
+						? b.role.firstNight || 99
+						: b.role.otherNight || 99;
+				return aOrder - bOrder;
+			});
 
   return (
     <View style={styles.panelContent}>

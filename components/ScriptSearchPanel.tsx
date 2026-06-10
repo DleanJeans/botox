@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
+  ActivityIndicator,
   Pressable,
   ScrollView,
-  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { searchScripts, extractRoleIds, extractMeta, BotcScriptResult } from '../hooks/useScriptSearch';
-import { ROLES } from '../data/roles';
+import { getRoles } from '../data/roles';
+import { type BotcScriptResult, extractMeta, extractRoleIds, searchScripts } from '../hooks/useScriptSearch';
 import RoleIcon from './RoleIcon';
 
 interface ScriptSearchPanelProps {
@@ -52,7 +52,7 @@ export default function ScriptSearchPanel({
   }, [onImportScript]);
 
   const matchedRoleCount = (roleIds: string[]) => {
-    return roleIds.filter(id => ROLES[id]).length;
+    return roleIds.filter(id => getRoles()[id]).length;
   };
 
   return (
@@ -138,7 +138,7 @@ export default function ScriptSearchPanel({
                   {/* Preview role chips */}
                   <View style={styles.roleChips}>
                     {roleIds.slice(0, 8).map(id => {
-                      const role = ROLES[id];
+                      const role = getRoles()[id];
                       return (
                         <View key={id} style={[styles.roleChip, role ? styles.roleChipKnown : styles.roleChipUnknown]}>
                           <Text style={styles.roleChipText}>

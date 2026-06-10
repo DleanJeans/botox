@@ -9,6 +9,7 @@ const BASE = 'https://release.botc.app/resources/characters';
 const ROLES_URL = 'https://release.botc.app/resources/data/roles.json';
 const NIGHTSHEET_URL = 'https://release.botc.app/resources/data/nightsheet.json';
 const CACHE_KEY = 'grim-player-role-data';
+import { platformGetItem, platformSetItem } from '../utils/platformStorage';
 
 // ── Module-level dynamic cache ──
 let _dynamicRoles: any[] | null = null;
@@ -18,7 +19,7 @@ let _editionMap: Record<string, string> = {};
 // Try loading from cache synchronously at module init
 function initFromCache() {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = platformGetItem(CACHE_KEY);
     if (raw) {
       const cached = JSON.parse(raw);
       _dynamicRoles = cached.roles;
@@ -34,9 +35,12 @@ initFromCache();
  * Caches in localStorage for offline use.
  */
 export async function preloadRoleData(): Promise<void> {
-  // Try localStorage cache first
+  const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36';
+  const headers = { 'User-Agent': UA };
+
+  // Try cache first
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = platformGetItem(CACHE_KEY);
     if (raw) {
       const cached = JSON.parse(raw);
       if (Date.now() - cached.ts < 86400000) { // 24h TTL
@@ -51,19 +55,17 @@ export async function preloadRoleData(): Promise<void> {
   // Fetch from API
   try {
     const [rolesRes, nightRes] = await Promise.all([
-      fetch(ROLES_URL),
-      fetch(NIGHTSHEET_URL),
+      fetch(ROLES_URL, { headers }),
+      fetch(NIGHTSHEET_URL, { headers }),
     ]);
     if (rolesRes.ok && nightRes.ok) {
       _dynamicRoles = await rolesRes.json();
       _dynamicNightsheet = await nightRes.json();
       buildEditionMap();
-      // Cache
-      try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          ts: Date.now(), roles: _dynamicRoles, nightsheet: _dynamicNightsheet,
-        }));
-      } catch {}
+      // Cache for offline use
+      await platformSetItem(CACHE_KEY, JSON.stringify({
+        ts: Date.now(), roles: _dynamicRoles, nightsheet: _dynamicNightsheet,
+      }));
     }
   } catch {
     // Silently use static fallbacks
