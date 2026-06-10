@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "The Grim Player",
-    "slug": "the-grim-player",
+    "name": "The Grim Keeper",
+    "slug": "grim-keeper",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
