@@ -3,16 +3,16 @@ import {
   View, Text, StyleSheet, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useResponsive } from '../hooks/useResponsive';
-import ContentWrapper from '../components/ContentWrapper';
-import ScriptBrowseTab from '../components/ScriptBrowseTab';
-import ScriptSavedTab from '../components/ScriptSavedTab';
-import { useSavedScriptStore } from '../hooks/useSavedScriptStore';
-import { getScripts } from '../data/scripts';
-import { searchScripts, extractRoleIds, BotcScriptResult } from '../hooks/useScriptSearch';
-import ScriptDetailModal from '../modals/ScriptDetailModal';
-import ScriptDetailPanel from '../components/ScriptDetailPanel';
-import CreateScriptModal from '../modals/CreateScriptModal';
+import { useResponsive } from '../../hooks/useResponsive';
+import ContentWrapper from '../../components/ContentWrapper';
+import ScriptBrowseTab from '../../components/ScriptBrowseTab';
+import ScriptSavedTab from '../../components/ScriptSavedTab';
+import { useSavedScriptStore } from '../../hooks/useSavedScriptStore';
+import { getScripts } from '../../data/scripts';
+import { searchScripts, extractRoleIds, BotcScriptResult } from '../../hooks/useScriptSearch';
+import ScriptDetailModal from '../../modals/ScriptDetailModal';
+import ScriptDetailPanel from '../../components/ScriptDetailPanel';
+import CreateScriptModal from '../../modals/CreateScriptModal';
 
 export default function ScriptsScreen() {
   const { isLandscape, isDesktop } = useResponsive();

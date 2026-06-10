@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from '../components/Icon';
-import { useGameStore } from '../hooks/useGameStore';
-import { useResponsive } from '../hooks/useResponsive';
-import ContentWrapper from '../components/ContentWrapper';
+import Icon from '../../components/Icon';
+import { useGameStore } from '../../hooks/useGameStore';
+import { useResponsive } from '../../hooks/useResponsive';
+import ContentWrapper from '../../components/ContentWrapper';
 
 export default function HomeScreen() {
   const router = useRouter();

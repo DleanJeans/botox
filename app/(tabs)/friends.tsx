@@ -8,10 +8,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ContentWrapper from '../components/ContentWrapper';
-import { useFriendStore } from '../hooks/useFriendStore';
-import { useResponsive } from '../hooks/useResponsive';
-import Icon from '../components/Icon';
+import ContentWrapper from '../../components/ContentWrapper';
+import { useFriendStore } from '../../hooks/useFriendStore';
+import { useResponsive } from '../../hooks/useResponsive';
+import Icon from '../../components/Icon';
 
 export default function FriendsScreen() {
   const { friends, loadFriends, addFriend, deleteFriend } = useFriendStore();
