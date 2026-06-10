@@ -1,0 +1,1 @@
+- Use pnpm, update pnpm-lock.yaml after adding/removing packages
