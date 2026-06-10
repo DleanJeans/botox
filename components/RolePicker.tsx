@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { TEAMS } from '../constants';
 import RoleIcon from './RoleIcon';
 
 interface Props {
@@ -19,8 +20,8 @@ export default function RolePicker({ currentRoleId, scriptRoleIds, onSelect }: P
     : allRoles;
 
   // Group by team
-  const teams = ['townsfolk', 'outsider', 'minion', 'demon'] as const;
-  const grouped = teams
+  
+  const grouped = TEAMS
     .map(team => ({
       team,
       roles: filteredRoles.filter(r => r.team === team).sort((a, b) => a.name.localeCompare(b.name)),

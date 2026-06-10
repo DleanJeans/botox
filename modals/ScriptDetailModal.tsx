@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { TEAMS } from '../constants';
 import RoleIcon from '../components/RoleIcon';
 
 interface ScriptDetailModalProps {
@@ -17,8 +18,8 @@ export default function ScriptDetailModal({
   onClose,
 }: ScriptDetailModalProps) {
   // Group roles by team
-  const teams = ['townsfolk', 'outsider', 'minion', 'demon'] as const;
-  const grouped = teams
+  
+  const grouped = TEAMS
     .map(team => ({
       team,
       roles: roleIds

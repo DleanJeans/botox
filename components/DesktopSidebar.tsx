@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Game, Player } from '../types';
 import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { TEAMS } from '../constants';
 import { useGameStore } from '../hooks/useGameStore';
 import ScriptSearchPanel from './ScriptSearchPanel';
 import RoleIcon from './RoleIcon';
@@ -147,8 +148,8 @@ function PlayersPanel({
 
 // ─── Roles Panel ────────────────────────────────────────────────
 function RolesPanel() {
-  const teams = ['townsfolk', 'outsider', 'minion', 'demon'] as const;
-  const rolesByTeam = teams.map(team => ({
+  
+  const rolesByTeam = TEAMS.map(team => ({
     team,
     roles: Object.values(ROLES).filter(r => r.team === team),
   }));
@@ -216,11 +217,11 @@ function NightPanel({ game }: { game: Game }) {
     <View style={styles.panelContent}>
       <View style={styles.panelHeader}>
         <Text style={styles.panelTitle}>
-          {game.nightPhase ? '🌙 Night Order' : '☀️ Day Order'}
+          🌙 Night Order
         </Text>
       </View>
       <Text style={styles.dayText}>
-        Day {game.currentDay} · {game.nightPhase ? '🌙 Night' : '☀️ Day'}
+        Day {game.currentDay}
       </Text>
       <ScrollView showsVerticalScrollIndicator={false}>
         {nightRoles.length === 0 ? (

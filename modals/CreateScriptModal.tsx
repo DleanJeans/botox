@@ -3,15 +3,8 @@ import {
   View, Text, StyleSheet, ScrollView, Pressable, Modal, TextInput,
 } from 'react-native';
 import { ROLES, TEAM_COLORS, TEAM_ORDER } from '../data/roles';
+import { TEAMS } from '../constants';
 import RoleIcon from '../components/RoleIcon';
-
-interface Props {
-  visible: boolean;
-  onClose: () => void;
-  onSave: (name: string, roleIds: string[]) => void;
-}
-
-const TEAMS = ['townsfolk', 'outsider', 'minion', 'demon'] as const;
 
 export default function CreateScriptModal({ visible, onClose, onSave }: Props) {
   const [name, setName] = useState('');
