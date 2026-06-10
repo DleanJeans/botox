@@ -23,9 +23,13 @@ export default function FriendsScreen() {
 
   useEffect(() => { loadFriends(); }, []);
 
+  const trimmedName = newName.trim();
+  const isDuplicate = trimmedName.length > 0 && friends.some(f => f.name.toLowerCase() === trimmedName.toLowerCase());
+
   const handleAdd = () => {
     const name = newName.trim();
     if (!name) return;
+    if (isDuplicate) return;
     addFriend(name, '');
     setNewName('');
     // Keep input focused for quick multi-entry
@@ -50,17 +54,18 @@ export default function FriendsScreen() {
       <View style={styles.addRow}>
         <TextInput
           ref={inputRef}
-          style={styles.addInput}
+          style={[styles.addInput, isDuplicate && styles.addInputError]}
           value={newName}
           onChangeText={setNewName}
-          placeholder="Type a name and press Enter to add..."
-          placeholderTextColor="#555"
           onSubmitEditing={handleAdd}
           returnKeyType="done"
           blurOnSubmit={false}
           autoFocus
         />
       </View>
+      {isDuplicate && (
+        <Text style={styles.duplicateWarning}>⚠ "{trimmedName}" is already on your friends list</Text>
+      )}
 
       {/* Friend count / filter */}
       {friends.length > 0 && (
@@ -122,6 +127,12 @@ const styles = StyleSheet.create({
   addInput: {
     flex: 1, backgroundColor: '#2f313a', borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 12, color: '#fff', fontSize: 16,
+  },
+  addInputError: {
+    borderWidth: 1, borderColor: '#f59e0b',
+  },
+  duplicateWarning: {
+    color: '#f59e0b', fontSize: 13, paddingHorizontal: 16, paddingTop: 6,
   },
   metaRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',

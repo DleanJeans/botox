@@ -1,4 +1,5 @@
 import { Game, Friend, SavedScript } from '../types';
+import { platformGetItem, platformSetItem } from './platformStorage';
 
 const STORAGE_KEY = 'grim-player-games';
 const FRIENDS_KEY = 'grim-player-friends';
@@ -6,7 +7,7 @@ const SAVED_SCRIPTS_KEY = 'grim-player-scripts';
 
 export function loadGames(): Game[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = platformGetItem(STORAGE_KEY);
     if (!raw) return [];
     const games = JSON.parse(raw) as Game[];
     // Migrate old games missing new fields
@@ -27,7 +28,7 @@ export function loadGames(): Game[] {
 
 export function saveGames(games: Game[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+    platformSetItem(STORAGE_KEY, JSON.stringify(games));
   } catch (e) {
     console.error('Failed to save games:', e);
   }
@@ -60,7 +61,7 @@ export function deleteGame(id: string): Game[] {
 
 export function loadFriends(): Friend[] {
   try {
-    const raw = localStorage.getItem(FRIENDS_KEY);
+    const raw = platformGetItem(FRIENDS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
@@ -70,13 +71,13 @@ export function saveFriend(friend: Friend): Friend[] {
   const idx = friends.findIndex(f => f.id === friend.id);
   if (idx >= 0) friends[idx] = friend;
   else friends.push(friend);
-  localStorage.setItem(FRIENDS_KEY, JSON.stringify(friends));
+  platformSetItem(FRIENDS_KEY, JSON.stringify(friends));
   return friends;
 }
 
 export function deleteFriend(id: string): Friend[] {
   const friends = loadFriends().filter(f => f.id !== id);
-  localStorage.setItem(FRIENDS_KEY, JSON.stringify(friends));
+  platformSetItem(FRIENDS_KEY, JSON.stringify(friends));
   return friends;
 }
 
@@ -84,7 +85,7 @@ export function deleteFriend(id: string): Friend[] {
 
 export function loadSavedScripts(): SavedScript[] {
   try {
-    const raw = localStorage.getItem(SAVED_SCRIPTS_KEY);
+    const raw = platformGetItem(SAVED_SCRIPTS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
@@ -94,12 +95,12 @@ export function saveScript(script: SavedScript): SavedScript[] {
   const idx = scripts.findIndex(s => s.id === script.id);
   if (idx >= 0) scripts[idx] = script;
   else scripts.push(script);
-  localStorage.setItem(SAVED_SCRIPTS_KEY, JSON.stringify(scripts));
+  platformSetItem(SAVED_SCRIPTS_KEY, JSON.stringify(scripts));
   return scripts;
 }
 
 export function deleteSavedScript(id: string): SavedScript[] {
   const scripts = loadSavedScripts().filter(s => s.id !== id);
-  localStorage.setItem(SAVED_SCRIPTS_KEY, JSON.stringify(scripts));
+  platformSetItem(SAVED_SCRIPTS_KEY, JSON.stringify(scripts));
   return scripts;
 }
