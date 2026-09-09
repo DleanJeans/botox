@@ -146,6 +146,7 @@ export function GameScriptPicker({
               {scripts.map((script) => (
                 <ScriptOption
                   description={getScriptOptionDescription(script, scriptPlayCounts?.get(script.id))}
+                  author={script.author}
                   key={script.id}
                   label={script.name}
                   selected={selectedScriptId === script.id}
@@ -183,7 +184,7 @@ export function GameScriptPicker({
 }
 
 function getScriptOptionDescription(script: StoredScript, playCount?: number) {
-  const description = getScriptDescription(script);
+  const description = `${script.roles.length} roles`;
 
   if (playCount === undefined) {
     return description;
@@ -201,11 +202,13 @@ function getScriptDescription(script?: StoredScript) {
 }
 
 function ScriptOption({
+  author,
   description,
   label,
   onPress,
   selected,
 }: {
+  author?: string;
   description: string;
   label: string;
   onPress: () => void;
@@ -244,6 +247,7 @@ function ScriptOption({
         <Text selectable style={{ color: colors.text, fontWeight: '800' }}>
           {label}
         </Text>
+        {author ? <Text style={{ color: colors.textMuted, fontSize: 12 }}>by {author}</Text> : null}
         <Text selectable style={{ color: colors.textMuted, fontSize: 12 }}>
           {description}
         </Text>
