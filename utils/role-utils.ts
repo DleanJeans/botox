@@ -239,6 +239,32 @@ export function getAssignedRoleIdsForDay(
   ].filter((roleId, index, roleIds) => roleIds.indexOf(roleId) === index);
 }
 
+export function getRoleIdsMentionedByOtherPlayersForDay(
+  players: Player[],
+  excludedPlayerId: string | undefined,
+  day: number,
+) {
+  const roleIds = new Set<string>();
+
+  for (const player of players) {
+    if (player.id === excludedPlayerId) {
+      continue;
+    }
+
+    for (const assignment of player.roleAssignments ?? []) {
+      if (assignment.day !== day) {
+        continue;
+      }
+
+      for (const roleId of assignment.roleIds) {
+        roleIds.add(roleId);
+      }
+    }
+  }
+
+  return [...roleIds];
+}
+
 export function getRoleAssignmentForDayOrPrevious(
   assignments: PlayerRoleAssignment[] | undefined,
   day: number,

@@ -14,6 +14,7 @@ import {
   getRoleDisplayForModes,
   getRoleIconUrl,
   getRoleIconUrlForAlignment,
+  getRoleIdsMentionedByOtherPlayersForDay,
   getRoleNames,
   getRoleOwnerNamesForDay,
   getRolesForDay,
@@ -327,6 +328,35 @@ describe('role utilities', () => {
 
     expect(getRoleAssignmentForDay(assignments, 1, 'claim')?.roleIds).toEqual(['empath']);
     expect(getRoleAssignmentForDay(assignments, 1, 'confirm')?.roleIds).toEqual(['imp']);
+  });
+
+  it('collects roles mentioned by other players on the active day', () => {
+    const players = [
+      {
+        id: 'focused',
+        name: 'Focused',
+        seat: 0,
+        roleAssignments: [{ day: 1, kind: 'claim' as const, roleIds: ['empath'], updatedAt: '' }],
+      },
+      {
+        id: 'other',
+        name: 'Other',
+        seat: 1,
+        roleAssignments: [
+          { day: 1, kind: 'claim' as const, roleIds: ['empath'], updatedAt: '' },
+          { day: 1, kind: 'confirm' as const, roleIds: ['soldier'], updatedAt: '' },
+          { day: 1, kind: 'rumor' as const, roleIds: ['imp'], updatedAt: '' },
+          { day: 1, kind: 'guess' as const, roleIds: ['imp'], updatedAt: '' },
+          { day: 2, kind: 'claim' as const, roleIds: ['poisoner'], updatedAt: '' },
+        ],
+      },
+    ];
+
+    expect(getRoleIdsMentionedByOtherPlayersForDay(players, 'focused', 1)).toEqual([
+      'empath',
+      'soldier',
+      'imp',
+    ]);
   });
 
   it('returns unique role ids from both claims and confirmations', () => {

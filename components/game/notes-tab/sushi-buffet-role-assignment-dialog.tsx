@@ -8,7 +8,11 @@ import { Text, TextInput } from '@/components/text';
 import { useGameStore } from '@/store/game-store';
 import { colors } from '@/theme/colors';
 import type { PlayerRoleAssignment } from '@/types/game';
-import { getRoleOwnerNamesForDay, getRolesByIds } from '@/utils/role-utils';
+import {
+  getRoleIdsMentionedByOtherPlayersForDay,
+  getRoleOwnerNamesForDay,
+  getRolesByIds,
+} from '@/utils/role-utils';
 
 export function SushiBuffetRoleAssignmentDialog() {
   const {
@@ -30,6 +34,12 @@ export function SushiBuffetRoleAssignmentDialog() {
     }
   }, [assignmentKey]);
 
+  const mentionedRoleIds = useMemo(
+    () =>
+      new Set(getRoleIdsMentionedByOtherPlayersForDay(players, focusedPlayer?.id, game.activeDay)),
+    [focusedPlayer?.id, game.activeDay, players],
+  );
+
   const roles = useMemo(() => {
     if (!game.script) {
       return [];
@@ -37,31 +47,33 @@ export function SushiBuffetRoleAssignmentDialog() {
 
     const scriptRolesById = new Map(game.script.roles.map((role) => [role.id, role]));
     const enabledRoleIds = new Set(game.sushiRoleIds ?? game.script.roles.map((role) => role.id));
-    const selectedRoleIds = new Set(roleAssignmentRoleIds);
+    const alwaysAvailableRoleIds = new Set([...roleAssignmentRoleIds, ...mentionedRoleIds]);
     const candidateRoles = game.script.roles.filter(
-      (role) => enabledRoleIds.has(role.id) || selectedRoleIds.has(role.id),
+      (role) => enabledRoleIds.has(role.id) || alwaysAvailableRoleIds.has(role.id),
     );
-    const missingSelectedRoleIds = roleAssignmentRoleIds.filter(
+    const missingRoleIds = [...alwaysAvailableRoleIds].filter(
       (roleId) => !scriptRolesById.has(roleId),
     );
 
     return [
       ...candidateRoles,
-      ...getRolesByIds(missingSelectedRoleIds, [...game.script.roles, ...roleCatalog]),
+      ...getRolesByIds(missingRoleIds, [...game.script.roles, ...roleCatalog]),
     ].filter(
       (role, index, candidateList) =>
         candidateList.findIndex((candidate) => candidate.id === role.id) === index,
     );
-  }, [game.script, game.sushiRoleIds, roleAssignmentRoleIds, roleCatalog]);
+  }, [game.script, game.sushiRoleIds, mentionedRoleIds, roleAssignmentRoleIds, roleCatalog]);
 
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
-  const filteredRoles = normalizedQuery
-    ? roles.filter(
-        (role) =>
-          role.name.toLocaleLowerCase().includes(normalizedQuery) ||
-          role.id.toLocaleLowerCase().includes(normalizedQuery),
-      )
-    : [];
+  const selectedRoleIds = new Set(roleAssignmentRoleIds);
+  const filteredRoles = roles.filter((role) => {
+    const alwaysAvailable = mentionedRoleIds.has(role.id) || selectedRoleIds.has(role.id);
+    const matchesSearch =
+      role.name.toLocaleLowerCase().includes(normalizedQuery) ||
+      role.id.toLocaleLowerCase().includes(normalizedQuery);
+
+    return alwaysAvailable || (normalizedQuery.length > 0 && matchesSearch);
+  });
   const roleOwnerNames = showRoles
     ? getRoleOwnerNamesForDay(players, game.activeDay, roles)
     : undefined;
@@ -85,13 +97,7 @@ export function SushiBuffetRoleAssignmentDialog() {
           value={searchQuery}
         />
       </View>
-      {!normalizedQuery ? (
-        <Text selectable style={styles.message}>
-          {roles.length > 0
-            ? 'Type to search the enabled roles. Assigned roles stay available even if disabled.'
-            : 'No roles are enabled. Type a role name or ID to check the current selection.'}
-        </Text>
-      ) : filteredRoles.length > 0 ? (
+      {filteredRoles.length > 0 ? (
         <RolePicker
           description={`Tap a role to ${getRoleAssignmentLabel(roleAssignmentKind)} or clear it.`}
           onToggleRole={handleToggleRoleAssignment}
@@ -100,6 +106,12 @@ export function SushiBuffetRoleAssignmentDialog() {
           selectedRoleIds={roleAssignmentRoleIds}
           scriptId={game.script?.id}
         />
+      ) : !normalizedQuery ? (
+        <Text selectable style={styles.message}>
+          {roles.length > 0
+            ? 'Type to search the enabled roles. Roles used by other players and selected roles stay available.'
+            : 'No roles are enabled. Type a role name or ID to check the current selection.'}
+        </Text>
       ) : (
         <Text selectable style={styles.message}>
           No matching enabled roles.
