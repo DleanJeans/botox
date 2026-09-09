@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
-import { Fragment, type ReactElement, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { type ReactElement, useEffect, useMemo, useState } from 'react';
+import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RoleIcon } from '@/components/role-icon';
 import { RoleReferencedNoteText } from '@/components/role-referenced-note-text';
@@ -140,81 +140,76 @@ export function ScriptRoleList({
   }, [nightSheet, nightTab, showNotes, sortMode, twoColumns, visibleRoleEntries]);
 
   return (
-    <ScrollView
+    <SectionList
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.contentContainer}
-      stickyHeaderIndices={getStickyHeaderIndices(sections, sortMode)}
-      style={styles.screen}
-    >
-      <View style={styles.listHeader}>
-        <ScriptRoleListHeader
-          header={header}
-          notesOnly={notesOnly}
-          nightTab={nightTab}
-          onNotesOnlyChange={setNotesOnly}
-          onNightTabChange={setNightTab}
-          onShowNotesChange={(value) => {
-            setShowNotes(value);
-            setRowLayoutAnimationEnabled(false);
-            if (value) {
-              setTwoColumns(false);
-            }
-          }}
-          onSortModeChange={setSortMode}
-          onTwoColumnsChange={setTwoColumns}
-          showNotes={showNotes}
-          sortMode={sortMode}
-          twoColumns={twoColumns}
-        />
-      </View>
-      {sections.length > 0 ? (
-        sections.map((section) => (
-          <Fragment key={section.title}>
-            {sortMode === 'current-split' ? (
-              <ScriptRoleSectionHeader label={section.title} />
-            ) : null}
-            {section.data.map((item) => (
-              <AnimatedScriptRoleRow
-                animateLayout={rowLayoutAnimationEnabled}
-                key={getScriptRoleRowKey(item)}
-                style={styles.roleRow}
-              >
-                {item.map((entry) => (
-                  <View key={entry.role.id} style={styles.roleCell}>
-                    <Animated.View
-                      entering={FadeIn.duration(180)}
-                      exiting={FadeOut.duration(140)}
-                      style={styles.animatedRoleCard}
-                    >
-                      <ScriptRoleDetail
-                        description={entry.description}
-                        notes={entry.notes}
-                        noteCount={entry.noteCount}
-                        onPress={() =>
-                          router.push({
-                            pathname: '/role-notes',
-                            params: { roleId: entry.role.id, scriptId },
-                          })
-                        }
-                        role={entry.role}
-                        roles={roles}
-                        scriptId={scriptId}
-                        showNotes={showNotes}
-                        twoColumns={sortMode === 'current-split' && twoColumns && !showNotes}
-                      />
-                    </Animated.View>
-                  </View>
-                ))}
-              </AnimatedScriptRoleRow>
-            ))}
-          </Fragment>
-        ))
-      ) : (
+      extraData={{ rowLayoutAnimationEnabled, showNotes, sortMode, twoColumns }}
+      keyExtractor={getScriptRoleRowKey}
+      ListEmptyComponent={
         <Text selectable style={styles.emptyText}>
           {notesOnly ? 'No roles with notes.' : 'No roles found.'}
         </Text>
+      }
+      ListHeaderComponent={
+        <View style={styles.listHeader}>
+          <ScriptRoleListHeader
+            header={header}
+            notesOnly={notesOnly}
+            nightTab={nightTab}
+            onNotesOnlyChange={setNotesOnly}
+            onNightTabChange={setNightTab}
+            onShowNotesChange={(value) => {
+              setShowNotes(value);
+              setRowLayoutAnimationEnabled(false);
+              if (value) {
+                setTwoColumns(false);
+              }
+            }}
+            onSortModeChange={setSortMode}
+            onTwoColumnsChange={setTwoColumns}
+            showNotes={showNotes}
+            sortMode={sortMode}
+            twoColumns={twoColumns}
+          />
+        </View>
+      }
+      renderItem={({ item }) => (
+        <AnimatedScriptRoleRow animateLayout={rowLayoutAnimationEnabled} style={styles.roleRow}>
+          {item.map((entry) => (
+            <View key={entry.role.id} style={styles.roleCell}>
+              <Animated.View
+                entering={FadeIn.duration(180)}
+                exiting={FadeOut.duration(140)}
+                style={styles.animatedRoleCard}
+              >
+                <ScriptRoleDetail
+                  description={entry.description}
+                  notes={entry.notes}
+                  noteCount={entry.noteCount}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/role-notes',
+                      params: { roleId: entry.role.id, scriptId },
+                    })
+                  }
+                  role={entry.role}
+                  roles={roles}
+                  scriptId={scriptId}
+                  showNotes={showNotes}
+                  twoColumns={sortMode === 'current-split' && twoColumns && !showNotes}
+                />
+              </Animated.View>
+            </View>
+          ))}
+        </AnimatedScriptRoleRow>
       )}
-    </ScrollView>
+      renderSectionHeader={({ section }) =>
+        sortMode === 'current-split' ? <ScriptRoleSectionHeader label={section.title} /> : null
+      }
+      sections={sections}
+      stickySectionHeadersEnabled={sortMode === 'current-split'}
+      style={styles.screen}
+    />
   );
 }
 
@@ -408,22 +403,6 @@ function chunkEntries(entries: ScriptRoleEntry[], chunkSize: number) {
 
 function getScriptRoleRowKey(row: ScriptRoleRow) {
   return row[0]?.role.id ?? 'empty-role-row';
-}
-
-function getStickyHeaderIndices(sections: ScriptRoleSection[], sortMode: ScriptRoleSortMode) {
-  if (sortMode !== 'current-split') {
-    return undefined;
-  }
-
-  const headerIndices: number[] = [];
-  let childIndex = 1;
-
-  for (const section of sections) {
-    headerIndices.push(childIndex);
-    childIndex += section.data.length + 1;
-  }
-
-  return headerIndices;
 }
 
 function ScriptRoleListHeader({
