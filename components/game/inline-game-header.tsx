@@ -68,7 +68,10 @@ export function InlineGameHeader({
           {gameScriptId ? (
             <ViewScriptButton
               onPress={() =>
-                router.push({ pathname: '/scripts/[id]', params: { id: gameScriptId } })
+                router.push({
+                  pathname: '/scripts/[id]',
+                  params: { gameId: activeGame.id, id: gameScriptId },
+                })
               }
             />
           ) : null}

@@ -5,19 +5,31 @@ import { Text } from '@/components/text';
 import { TitleHeader } from '@/components/title-header';
 import { useGameStore } from '@/store/game-store';
 import { colors } from '@/theme/colors';
-import type { StoredScript } from '@/types/game';
+import type { Game, StoredScript } from '@/types/game';
+import { isSushiBuffetScript } from '@/utils/script-service';
 
 export default function ScriptDetailRoute() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { gameId, id } = useLocalSearchParams<{ gameId?: string; id: string }>();
   const roleCatalog = useGameStore((state) => state.roleCatalog);
-  const script = useGameStore((state) => state.scripts.find((item) => item.id === id));
+  const scripts = useGameStore((state) => state.scripts);
+  const games = useGameStore((state) => state.games);
+  const isSushiBuffet = isSushiBuffetScript({ id });
+  const sushiBuffetGame = isSushiBuffet ? games.find((game) => game.id === gameId) : undefined;
+  const script = isSushiBuffet ? sushiBuffetGame?.script : scripts.find((item) => item.id === id);
+  const roles = script
+    ? isSushiBuffetScript(script)
+      ? getEnabledSushiRoles(script, sushiBuffetGame)
+      : script.roles
+    : [];
 
-  if (!script) {
+  if (!script || (isSushiBuffet && (!sushiBuffetGame || !isSushiBuffetScript(script)))) {
     return (
       <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', padding: 20 }}>
-        <Stack.Screen options={{ title: 'Script not found' }} />
+        <Stack.Screen
+          options={{ title: isSushiBuffet ? 'Sushi Buffet unavailable' : 'Script not found' }}
+        />
         <Text selectable style={{ color: colors.text, fontSize: 17, fontWeight: '800' }}>
-          Script not found.
+          {isSushiBuffet ? 'Sushi Buffet can only be viewed from a game.' : 'Script not found.'}
         </Text>
       </View>
     );
@@ -32,19 +44,31 @@ export default function ScriptDetailRoute() {
         }}
       />
       <ScriptRoleList
-        header={<ScriptDetailHeader script={script} />}
+        header={<ScriptDetailHeader script={script} visibleRoleCount={roles.length} />}
         roleCatalog={roleCatalog}
-        roles={script.roles}
+        roles={roles}
         scriptId={script.id}
       />
     </>
   );
 }
 
-function ScriptDetailHeader({ script }: { script: StoredScript }) {
+function ScriptDetailHeader({
+  script,
+  visibleRoleCount,
+}: {
+  script: StoredScript;
+  visibleRoleCount: number;
+}) {
   return (
     <Text selectable style={{ color: colors.textMuted, fontSize: 14, textAlign: 'center' }}>
-      {script.author ? `${script.author} · ` : ''}v{script.version} · {script.roles.length} roles
+      {script.author ? `${script.author} · ` : ''}v{script.version} · {visibleRoleCount}
+      {isSushiBuffetScript(script) ? ` of ${script.roles.length} roles enabled` : ' roles'}
     </Text>
   );
+}
+
+function getEnabledSushiRoles(script: StoredScript, game?: Game) {
+  const enabledRoleIds = new Set(game?.sushiRoleIds ?? script.roles.map((role) => role.id));
+  return script.roles.filter((role) => enabledRoleIds.has(role.id));
 }
