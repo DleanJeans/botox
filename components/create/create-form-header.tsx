@@ -147,6 +147,13 @@ export function CreateFormHeader({
         <Text selectable style={styles.instructions}>
           Add players from the player on the left then clockwise.
         </Text>
+        {!isEditing ? (
+          <FriendPlayerPicker
+            friends={allFriends}
+            onDone={onApplyFriendSelection}
+            selectedFriendIds={selectedFriendIds}
+          />
+        ) : null}
         <Text selectable style={styles.label}>
           Player name
         </Text>
@@ -208,13 +215,6 @@ export function CreateFormHeader({
             </Text>
           </Pressable>
         </View>
-        {!isEditing ? (
-          <FriendPlayerPicker
-            friends={allFriends}
-            onDone={onApplyFriendSelection}
-            selectedFriendIds={selectedFriendIds}
-          />
-        ) : null}
       </View>
 
       {!isEditing ? (
