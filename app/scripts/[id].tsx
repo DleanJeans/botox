@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import { ScriptRoleList } from '@/components/scripts/script-role-list';
+import { SushiBuffetScriptRoleList } from '@/components/scripts/sushi-buffet-script-role-list';
 import { Text } from '@/components/text';
 import { TitleHeader } from '@/components/title-header';
 import { useGameStore } from '@/store/game-store';
@@ -43,12 +44,21 @@ export default function ScriptDetailRoute() {
           title: script.name,
         }}
       />
-      <ScriptRoleList
-        header={<ScriptDetailHeader script={script} visibleRoleCount={roles.length} />}
-        roleCatalog={roleCatalog}
-        roles={roles}
-        scriptId={script.id}
-      />
+      {isSushiBuffet ? (
+        <SushiBuffetScriptRoleList
+          header={<ScriptDetailHeader script={script} visibleRoleCount={roles.length} />}
+          roleCatalog={roleCatalog}
+          roles={roles}
+          scriptId={script.id}
+        />
+      ) : (
+        <ScriptRoleList
+          header={<ScriptDetailHeader script={script} visibleRoleCount={roles.length} />}
+          roleCatalog={roleCatalog}
+          roles={roles}
+          scriptId={script.id}
+        />
+      )}
     </>
   );
 }
