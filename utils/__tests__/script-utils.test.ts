@@ -1,5 +1,5 @@
 import type { Game, StoredScript } from '@/types/game';
-import { sortScriptsByMostPlayed } from '@/utils/script-utils';
+import { getScriptPlayCounts, sortScriptsByMostPlayed } from '@/utils/script-utils';
 
 const scripts: StoredScript[] = [
   createScript('script-z', 'Zulu'),
@@ -10,6 +10,21 @@ const scripts: StoredScript[] = [
 let nextGameId = 0;
 
 describe('script utils', () => {
+  it('counts each saved game by its effective script ID', () => {
+    const games = [
+      createGame({ scriptId: 'script-z' }),
+      createGame({ script: scripts[1] }),
+      createGame({ scriptId: 'missing-script' }),
+      createGame(),
+    ];
+
+    expect([...getScriptPlayCounts(games)]).toEqual([
+      ['script-z', 1],
+      ['script-a', 1],
+      ['missing-script', 1],
+    ]);
+  });
+
   it('sorts scripts by all saved games, including legacy embedded script IDs', () => {
     const games = [
       createGame({ scriptId: 'script-z' }),

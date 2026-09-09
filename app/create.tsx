@@ -26,7 +26,7 @@ import {
 import { getDefaultMapHeight, getDefaultMapWidth } from '@/utils/layout-utils';
 import { APP_USER_ID } from '@/utils/object-id';
 import { DESKTOP_CONTENT_MAX_WIDTH } from '@/utils/responsive-utils';
-import { sortScriptsByMostPlayed } from '@/utils/script-utils';
+import { getScriptPlayCounts, sortScriptsByMostPlayed } from '@/utils/script-utils';
 
 export default function CreateRoute() {
   const { gameId: gameIdParam, scriptId: scriptIdParam } = useLocalSearchParams<{
@@ -73,6 +73,10 @@ export default function CreateRoute() {
 
     return isEditing ? scriptsForPicker : sortScriptsByMostPlayed(scriptsForPicker, games);
   }, [games, isEditing, legacyScript, scripts]);
+  const scriptPlayCounts = useMemo(
+    () => (isEditing ? undefined : getScriptPlayCounts(games)),
+    [games, isEditing],
+  );
   const selectedScriptId = draftSelectedScriptId;
   const selectedScript = availableScripts.find((script) => script.id === selectedScriptId);
   const mapWidth = getDefaultMapWidth(viewportWidth);
@@ -306,6 +310,7 @@ export default function CreateRoute() {
               onStart={handleStart}
               onSubmitName={handleAddPlayer}
               scripts={availableScripts}
+              scriptPlayCounts={scriptPlayCounts}
               selectedScriptId={selectedScriptId}
               selectedLoricIds={selectedLoricIds}
               selectedStorytellerId={draftSelectedStorytellerId}

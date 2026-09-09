@@ -35,6 +35,7 @@ type CreateFormHeaderProps = {
   onSelectStoryteller: (friendId?: string) => void;
   onStart: () => void;
   onSubmitName: () => void;
+  scriptPlayCounts?: ReadonlyMap<string, number>;
   scripts: StoredScript[];
   selectedScriptId: string | null;
   selectedLoricIds: string[];
@@ -65,6 +66,7 @@ export function CreateFormHeader({
   onSelectStoryteller,
   onStart,
   onSubmitName,
+  scriptPlayCounts,
   scripts,
   selectedScriptId,
   selectedLoricIds,
@@ -92,6 +94,7 @@ export function CreateFormHeader({
             onSelect={onSelectScript}
             onTriggerHeightChange={(height) => handlePickerHeightChange('script', height)}
             scripts={scripts}
+            scriptPlayCounts={scriptPlayCounts}
             selectedScriptId={selectedScriptId}
             triggerHeight={syncedPickerHeight || undefined}
           />

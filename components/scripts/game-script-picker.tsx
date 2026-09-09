@@ -14,6 +14,7 @@ type GameScriptPickerProps = {
   onBrowse: () => void;
   onSelect: (scriptId: string | null) => void;
   onTriggerHeightChange?: (height: number) => void;
+  scriptPlayCounts?: ReadonlyMap<string, number>;
   triggerHeight?: number;
 };
 
@@ -21,6 +22,7 @@ export function GameScriptPicker({
   onBrowse,
   onSelect,
   onTriggerHeightChange,
+  scriptPlayCounts,
   scripts,
   selectedScriptId,
   triggerHeight,
@@ -143,7 +145,7 @@ export function GameScriptPicker({
               />
               {scripts.map((script) => (
                 <ScriptOption
-                  description={getScriptDescription(script)}
+                  description={getScriptOptionDescription(script, scriptPlayCounts?.get(script.id))}
                   key={script.id}
                   label={script.name}
                   selected={selectedScriptId === script.id}
@@ -178,6 +180,16 @@ export function GameScriptPicker({
       </Modal>
     </View>
   );
+}
+
+function getScriptOptionDescription(script: StoredScript, playCount?: number) {
+  const description = getScriptDescription(script);
+
+  if (playCount === undefined) {
+    return description;
+  }
+
+  return `${description} · ${playCount} ${playCount === 1 ? 'game' : 'games'} tracked`;
 }
 
 function getScriptDescription(script?: StoredScript) {
