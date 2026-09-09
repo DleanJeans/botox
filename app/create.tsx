@@ -28,6 +28,8 @@ import {
 import { getDefaultMapHeight, getDefaultMapWidth } from '@/utils/layout-utils';
 import { APP_USER_ID } from '@/utils/object-id';
 import { DESKTOP_CONTENT_MAX_WIDTH } from '@/utils/responsive-utils';
+import { SUSHI_BUFFET_SCRIPT_ID } from '@/utils/script-constants';
+import { createSushiBuffetScript, isSushiBuffetScript } from '@/utils/script-service';
 import { getScriptPlayCounts, sortScriptsByMostPlayed } from '@/utils/script-utils';
 
 export default function CreateRoute() {
@@ -41,6 +43,7 @@ export default function CreateRoute() {
   const games = useGameStore((state) => state.games);
   const scripts = useGameStore((state) => state.scripts);
   const setGameScript = useGameStore((state) => state.setGameScript);
+  const setGameSushiRoleIds = useGameStore((state) => state.setGameSushiRoleIds);
   const setGameLorics = useGameStore((state) => state.setGameLorics);
   const roleCatalog = useGameStore((state) => state.roleCatalog);
   const storedFriends = useGameStore((state) => state.friends);
@@ -54,8 +57,11 @@ export default function CreateRoute() {
     scriptIdParam ?? null,
   );
   const [selectedLoricIds, setSelectedLoricIds] = useState<string[]>([]);
+  const [selectedSushiRoleIds, setSelectedSushiRoleIds] = useState<string[]>([]);
   const [draftSelectedStorytellerId, setDraftSelectedStorytellerId] = useState<string | null>(null);
   const draftGameId = useRef<string | null>(null);
+  const sushiSelectionKeyRef = useRef<string | null>(null);
+  const sushiSelectionChangedRef = useRef(false);
   const editingGame = gameIdParam ? games.find((game) => game.id === gameIdParam) : undefined;
   const isEditing = Boolean(editingGame);
   const players =
@@ -67,11 +73,22 @@ export default function CreateRoute() {
   const fixedPlayerName =
     editingGame?.players.find((player) => player.id === APP_USER_ID)?.name ?? appUserName;
   const legacyScript = editingGame?.script;
+  const sushiBuffetScript = useMemo(
+    () =>
+      createSushiBuffetScript(
+        roleCatalog,
+        legacyScript && isSushiBuffetScript(legacyScript) ? legacyScript.roles : [],
+      ),
+    [legacyScript, roleCatalog],
+  );
   const availableScripts = useMemo(() => {
+    const regularScripts = scripts.filter((script) => script.id !== SUSHI_BUFFET_SCRIPT_ID);
     const scriptsForPicker =
-      !legacyScript || scripts.some((script) => script.id === legacyScript.id)
-        ? scripts
-        : [legacyScript, ...scripts];
+      !legacyScript ||
+      isSushiBuffetScript(legacyScript) ||
+      regularScripts.some((script) => script.id === legacyScript.id)
+        ? regularScripts
+        : [legacyScript, ...regularScripts];
 
     return isEditing ? scriptsForPicker : sortScriptsByMostPlayed(scriptsForPicker, games);
   }, [games, isEditing, legacyScript, scripts]);
@@ -80,7 +97,11 @@ export default function CreateRoute() {
     [games, isEditing],
   );
   const selectedScriptId = draftSelectedScriptId;
-  const selectedScript = availableScripts.find((script) => script.id === selectedScriptId);
+  const isSushiBuffet = selectedScriptId === SUSHI_BUFFET_SCRIPT_ID;
+  const selectedScript = isSushiBuffet
+    ? sushiBuffetScript
+    : availableScripts.find((script) => script.id === selectedScriptId);
+  const sushiSelectionKey = `${editingGame?.id ?? 'new'}:${selectedScriptId ?? 'none'}`;
   const mapWidth = getDefaultMapWidth(viewportWidth);
   const mapHeight = getDefaultMapHeight(mapWidth, viewportHeight);
   const friends = useMemo(
@@ -161,6 +182,39 @@ export default function CreateRoute() {
     }
   }, [editingGame?.lorics, isEditing]);
 
+  useEffect(() => {
+    if (!isSushiBuffet) {
+      return;
+    }
+
+    if (sushiSelectionKeyRef.current !== sushiSelectionKey) {
+      sushiSelectionKeyRef.current = sushiSelectionKey;
+      sushiSelectionChangedRef.current = false;
+      setSelectedSushiRoleIds(
+        editingGame && isSushiBuffetScript(editingGame.script)
+          ? (editingGame.sushiRoleIds ?? editingGame.script?.roles.map((role) => role.id) ?? [])
+          : sushiBuffetScript.roles.map((role) => role.id),
+      );
+      return;
+    }
+
+    if (
+      !isEditing &&
+      !sushiSelectionChangedRef.current &&
+      selectedSushiRoleIds.length === 0 &&
+      sushiBuffetScript.roles.length > 0
+    ) {
+      setSelectedSushiRoleIds(sushiBuffetScript.roles.map((role) => role.id));
+    }
+  }, [
+    editingGame,
+    isEditing,
+    isSushiBuffet,
+    selectedSushiRoleIds.length,
+    sushiBuffetScript.roles,
+    sushiSelectionKey,
+  ]);
+
   const helperText = useMemo(() => {
     if (duplicateName) {
       return 'That player already exists.';
@@ -225,6 +279,9 @@ export default function CreateRoute() {
     if (isEditing && editingGame) {
       updateGamePlayers(editingGame.id, players, selectedStoryteller);
       setGameScript(editingGame.id, selectedScript);
+      if (isSushiBuffet) {
+        setGameSushiRoleIds(editingGame.id, selectedSushiRoleIds);
+      }
       setGameLorics(
         editingGame.id,
         roleCatalog.filter((role) => selectedLoricIds.includes(role.id)),
@@ -240,6 +297,7 @@ export default function CreateRoute() {
       playerNames: players.map((player) => player.name),
       script: selectedScript,
       storyteller: selectedStoryteller,
+      sushiRoleIds: isSushiBuffet ? selectedSushiRoleIds : undefined,
     });
     router.replace({ pathname: '/game/[id]', params: { id: game.id } });
   }
@@ -300,11 +358,13 @@ export default function CreateRoute() {
               canAddPlayer={canAddPlayer}
               canStart={canStart}
               duplicateName={duplicateName}
+              featuredScript={sushiBuffetScript}
               fixedPlayerName={fixedPlayerName}
               friends={suggestedFriends}
               helperText={helperText}
               inputRef={inputRef}
               isEditing={isEditing}
+              isSushiBuffet={isSushiBuffet}
               name={name}
               nameFocused={nameFocused}
               onAddPlayer={handleAddPlayer}
@@ -323,6 +383,10 @@ export default function CreateRoute() {
               onFocusName={() => setNameFocused(true)}
               onSelectFriend={handleSelectFriend}
               onSelectScript={setDraftSelectedScriptId}
+              onSelectSushiRoles={(roleIds) => {
+                sushiSelectionChangedRef.current = true;
+                setSelectedSushiRoleIds(roleIds);
+              }}
               onSelectStoryteller={(friendId) => setDraftSelectedStorytellerId(friendId ?? null)}
               lorics={roleCatalog.filter((role) => role.team?.toLocaleLowerCase() === 'loric')}
               onSelectLorics={setSelectedLoricIds}
@@ -331,10 +395,12 @@ export default function CreateRoute() {
               scripts={availableScripts}
               scriptPlayCounts={scriptPlayCounts}
               selectedScriptId={selectedScriptId}
+              selectedSushiRoleIds={selectedSushiRoleIds}
               selectedFriendIds={selectedFriendIds}
               selectedLoricIds={selectedLoricIds}
               selectedStorytellerId={draftSelectedStorytellerId}
               storytellers={storytellerFriends}
+              sushiRoles={sushiBuffetScript.roles}
             />
           }
           ListHeaderComponentStyle={styles.listHeader}

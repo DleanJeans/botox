@@ -7,6 +7,7 @@ import { FixedPlayerRow } from '@/components/create/fixed-player-row';
 import { FriendPlayerPicker } from '@/components/create/friend-player-picker';
 import { LoricPicker } from '@/components/create/loric-picker';
 import { StorytellerPicker } from '@/components/create/storyteller-picker';
+import { SushiBuffetRolePicker } from '@/components/create/sushi-buffet-role-picker';
 import { FriendSuggestions } from '@/components/friends/friend-suggestions';
 import { GameScriptPicker } from '@/components/scripts/game-script-picker';
 import { Text, TextInput } from '@/components/text';
@@ -18,11 +19,13 @@ type CreateFormHeaderProps = {
   canAddPlayer: boolean;
   canStart: boolean;
   duplicateName: boolean;
+  featuredScript?: StoredScript;
   fixedPlayerName: string;
   friends: FriendSummary[];
   helperText: string;
   inputRef: RefObject<RNTextInput | null>;
   isEditing: boolean;
+  isSushiBuffet: boolean;
   lorics: Role[];
   name: string;
   nameFocused: boolean;
@@ -35,16 +38,19 @@ type CreateFormHeaderProps = {
   onSelectFriend: (friend: FriendSummary) => void;
   onSelectLorics: (roleIds: string[]) => void;
   onSelectScript: (scriptId: string | null) => void;
+  onSelectSushiRoles: (roleIds: string[]) => void;
   onSelectStoryteller: (friendId?: string) => void;
   onStart: () => void;
   onSubmitName: () => void;
   scriptPlayCounts?: ReadonlyMap<string, number>;
   scripts: StoredScript[];
   selectedScriptId: string | null;
+  selectedSushiRoleIds: string[];
   selectedLoricIds: string[];
   selectedFriendIds: string[];
   selectedStorytellerId: string | null;
   storytellers: FriendSummary[];
+  sushiRoles: Role[];
 };
 
 export function CreateFormHeader({
@@ -52,11 +58,13 @@ export function CreateFormHeader({
   canAddPlayer,
   canStart,
   duplicateName,
+  featuredScript,
   fixedPlayerName,
   friends,
   helperText,
   inputRef,
   isEditing,
+  isSushiBuffet,
   lorics,
   name,
   nameFocused,
@@ -69,16 +77,19 @@ export function CreateFormHeader({
   onSelectFriend,
   onSelectLorics,
   onSelectScript,
+  onSelectSushiRoles,
   onSelectStoryteller,
   onStart,
   onSubmitName,
   scriptPlayCounts,
   scripts,
   selectedScriptId,
+  selectedSushiRoleIds,
   selectedLoricIds,
   selectedFriendIds,
   selectedStorytellerId,
   storytellers,
+  sushiRoles,
 }: CreateFormHeaderProps) {
   const [pickerHeights, setPickerHeights] = useState({ script: 0, lorics: 0 });
   const syncedPickerHeight = Math.max(
@@ -97,6 +108,7 @@ export function CreateFormHeader({
       <View style={styles.pickerRow}>
         <View style={styles.pickerCell}>
           <GameScriptPicker
+            featuredScript={featuredScript}
             onBrowse={onBrowseScripts}
             onSelect={onSelectScript}
             onTriggerHeightChange={(height) => handlePickerHeightChange('script', height)}
@@ -116,6 +128,14 @@ export function CreateFormHeader({
           />
         </View>
       </View>
+
+      {isSushiBuffet ? (
+        <SushiBuffetRolePicker
+          onChange={onSelectSushiRoles}
+          roles={sushiRoles}
+          selectedRoleIds={selectedSushiRoleIds}
+        />
+      ) : null}
 
       <StorytellerPicker
         friends={storytellers}

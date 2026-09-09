@@ -1,5 +1,6 @@
 import type { Friend, Game, Player, SavedNote, StoredScript } from '@/types/game';
 import { normalizePlayerName } from '@/utils/conversation-utils';
+import { SUSHI_BUFFET_SCRIPT_ID, SUSHI_BUFFET_SCRIPT_NAME } from '@/utils/script-constants';
 
 const OFFICIAL_SCRIPT_AUTHOR = 'The Pandemonium Institute';
 export const APP_USER_ID = 'app-user';
@@ -61,6 +62,10 @@ export function createScriptId(
   script: Pick<StoredScript, 'author' | 'name' | 'remoteId'>,
   usedIds: string[],
 ) {
+  if (script.name === SUSHI_BUFFET_SCRIPT_NAME && script.remoteId === undefined && !script.author) {
+    return SUSHI_BUFFET_SCRIPT_ID;
+  }
+
   const name = slugify(script.name) || 'script';
   const baseId =
     script.remoteId !== undefined && script.author !== OFFICIAL_SCRIPT_AUTHOR

@@ -18,6 +18,7 @@ import {
   fetchRemoteScriptContent,
   fetchRemoteScripts,
   fetchRoleCatalog,
+  isSushiBuffetScript,
   type RemoteScript,
 } from '@/utils/script-service';
 
@@ -226,7 +227,7 @@ export default function ScriptsRoute() {
             canSelect={isSelectingForGame}
             editingScriptId={editingScriptId}
             roleCatalog={roleCatalog}
-            scripts={scripts}
+            scripts={scripts.filter((script) => !isSushiBuffetScript(script))}
             onDelete={confirmDeleteScript}
             onEdit={(scriptId) =>
               setEditingScriptId((currentId) => (currentId === scriptId ? null : scriptId))

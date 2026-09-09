@@ -106,6 +106,71 @@ describe('setGameResult', () => {
   });
 });
 
+describe('Sushi Buffet role selections', () => {
+  const sushiScript: StoredScript = {
+    id: 'sushi-buffet',
+    name: 'Sushi Buffet',
+    roles: [
+      { id: 'empath', name: 'Empath' },
+      { id: 'beggar', name: 'Beggar', team: 'traveller' },
+    ],
+    updatedAt: '2026-07-07T00:00:00.000Z',
+    version: '1.0.0',
+  };
+  const regularScript: StoredScript = {
+    id: 'trouble-brewing',
+    name: 'Trouble Brewing',
+    roles: [{ id: 'imp', name: 'Imp' }],
+    updatedAt: '2026-07-07T00:00:00.000Z',
+    version: '1.0.0',
+  };
+
+  afterEach(() => {
+    useGameStore.setState({ games: [] });
+  });
+
+  it('persists an explicit empty Sushi Buffet role pool', () => {
+    const game = useGameStore.getState().createGame({
+      mapHeight: 400,
+      mapWidth: 600,
+      playerNames: ['Alice'],
+      script: sushiScript,
+      sushiRoleIds: [],
+    });
+
+    expect(game.sushiRoleIds).toEqual([]);
+  });
+
+  it('filters and updates Sushi Buffet role IDs without affecting assignments', () => {
+    const game = useGameStore.getState().createGame({
+      mapHeight: 400,
+      mapWidth: 600,
+      playerNames: ['Alice'],
+      script: sushiScript,
+      sushiRoleIds: ['empath'],
+    });
+
+    useGameStore.getState().setGameSushiRoleIds(game.id, ['beggar', 'beggar', 'missing']);
+
+    expect(useGameStore.getState().games[0].sushiRoleIds).toEqual(['beggar']);
+  });
+
+  it('defaults to every Sushi role when switching scripts and clears the setting otherwise', () => {
+    const game = useGameStore.getState().createGame({
+      mapHeight: 400,
+      mapWidth: 600,
+      playerNames: ['Alice'],
+      script: regularScript,
+    });
+
+    useGameStore.getState().setGameScript(game.id, sushiScript);
+    expect(useGameStore.getState().games[0].sushiRoleIds).toEqual(['empath', 'beggar']);
+
+    useGameStore.getState().setGameScript(game.id, regularScript);
+    expect(useGameStore.getState().games[0].sushiRoleIds).toBeUndefined();
+  });
+});
+
 describe('updateGamePlayers', () => {
   afterEach(() => {
     useGameStore.setState({ games: [], friends: [] });

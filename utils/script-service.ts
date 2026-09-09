@@ -3,16 +3,20 @@ import { createScriptId } from '@/utils/object-id';
 import {
   BOTC_ROLE_CATALOG_URL,
   BOTC_ROLE_ICON_BASE_URL,
+  mergeRoleCatalogMetadata,
   mergeScriptRoles,
   normalizeRoleCatalog,
   parseRoleIconCatalog,
 } from '@/utils/role-utils';
+import { SUSHI_BUFFET_SCRIPT_ID, SUSHI_BUFFET_SCRIPT_NAME } from '@/utils/script-constants';
 import type { NightSheet } from '@/utils/script-utils';
 
 export const BOTC_SCRIPTS_API_URL = 'https://www.botcscripts.com/api/scripts';
 export const BOTC_NIGHT_SHEET_URL = 'https://release.botc.app/resources/data/nightsheet.json';
 export const OFFICIAL_SCRIPT_AUTHOR = 'The Pandemonium Institute';
 export const OFFICIAL_CAROUSEL_SCRIPT_ID = 'carousel';
+export { SUSHI_BUFFET_SCRIPT_ID, SUSHI_BUFFET_SCRIPT_NAME } from '@/utils/script-constants';
+
 const BOTC_RESOURCES_URL = `${BOTC_ROLE_ICON_BASE_URL.replace('/characters', '')}/`;
 
 const officialScriptNames = new Set(['Trouble Brewing', 'Sects and Violets', 'Bad Moon Rising']);
@@ -178,6 +182,29 @@ export function createOfficialCarouselScript(
     roles: catalog.filter((role) => role.edition?.toLocaleLowerCase() === 'carousel'),
     updatedAt: new Date().toISOString(),
   };
+}
+
+export function createSushiBuffetScript(catalog: Role[], existingRoles: Role[] = []): StoredScript {
+  const rolesById = new Map<string, Role>();
+
+  for (const role of [...catalog, ...existingRoles]) {
+    if (!rolesById.has(role.id)) {
+      rolesById.set(role.id, role);
+    }
+  }
+
+  return {
+    id: SUSHI_BUFFET_SCRIPT_ID,
+    name: SUSHI_BUFFET_SCRIPT_NAME,
+    version: '1.0.0',
+    scriptType: 'Full',
+    roles: mergeRoleCatalogMetadata([...rolesById.values()], catalog),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+export function isSushiBuffetScript(script?: Pick<StoredScript, 'id'>) {
+  return script?.id === SUSHI_BUFFET_SCRIPT_ID;
 }
 
 export function createStoredScript(

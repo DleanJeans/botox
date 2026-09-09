@@ -58,6 +58,7 @@ import {
   getRolesForDayOrPrevious,
   isTravelerRole,
 } from '@/utils/role-utils';
+import { isSushiBuffetScript } from '@/utils/script-service';
 
 export default function GameRoute() {
   const {
@@ -677,7 +678,7 @@ export default function GameRoute() {
       activeGame.script.roles.filter(isTravelerRole).map((role) => role.id),
     );
     const selectableRoleIds =
-      kind === 'claim'
+      kind === 'claim' && !isSushiBuffetScript(activeGame.script)
         ? currentRoleIds.filter((roleId) => !travelerRoleIds.has(roleId))
         : currentRoleIds;
     setRoleAssignmentKind(kind);

@@ -10,6 +10,7 @@ import {
   mapGamePlayerIdsToFriendIds,
   mapSavedNoteIds,
 } from '@/utils/object-id';
+import { isSushiBuffetScript } from '@/utils/script-service';
 import { restoreRedundantRoleImageUrl, stripRedundantRoleImageUrl } from '@/utils/script-storage';
 
 const backupFormat = 'grim-keeper-backup';
@@ -93,7 +94,7 @@ export function parseBackup(value: string): GameData {
 
 function normalizeForExport(data: GameData): ExportedGameData {
   const scripts: ExportedScript[] = data.scripts.map((script) =>
-    isImportedScript(script)
+    isPortableScript(script)
       ? { ...script, roles: script.roles.map(stripRedundantRoleImageUrl) }
       : script.id,
   );
@@ -134,7 +135,7 @@ function normalizeForExport(data: GameData): ExportedGameData {
 
     if (!scriptsById.has(script.id)) {
       scripts.push(
-        isImportedScript(script)
+        isPortableScript(script)
           ? { ...script, roles: script.roles.map(stripRedundantRoleImageUrl) }
           : script.id,
       );
@@ -273,6 +274,10 @@ function isImportedScript(script: StoredScript) {
   );
 }
 
+function isPortableScript(script: StoredScript) {
+  return isImportedScript(script) || isSushiBuffetScript(script);
+}
+
 function createScriptPlaceholder(id: string): StoredScript {
   const remoteIdMatch = /^(\d+)-/.exec(id);
   const remoteId = remoteIdMatch ? Number(remoteIdMatch[1]) : undefined;
@@ -390,6 +395,7 @@ function isGame(value: unknown): value is Game {
     isString(value.updatedAt) &&
     isFiniteNumber(value.activeDay) &&
     isOptionalGameResult(value.result) &&
+    isOptionalStringArray(value.sushiRoleIds) &&
     Array.isArray(value.players) &&
     value.players.every(isPlayer) &&
     Array.isArray(value.conversations) &&
@@ -405,6 +411,7 @@ function isExportedGame(value: unknown): value is ExportedGame {
     isString(value.updatedAt) &&
     isFiniteNumber(value.activeDay) &&
     isOptionalGameResult(value.result) &&
+    isOptionalStringArray(value.sushiRoleIds) &&
     Array.isArray(value.players) &&
     value.players.every(
       (player) =>
@@ -453,6 +460,10 @@ function isOptionalBoolean(value: unknown): value is boolean | undefined {
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(isString);
+}
+
+function isOptionalStringArray(value: unknown): value is string[] | undefined {
+  return value === undefined || isStringArray(value);
 }
 
 function isOptionalGameResult(value: unknown) {

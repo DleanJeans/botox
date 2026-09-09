@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { useGameRouteContext } from '@/components/game/game-route-context';
 import { RolePicker } from '@/components/game/notes-tab/role-picker';
+import { SushiBuffetRoleAssignmentDialog } from '@/components/game/notes-tab/sushi-buffet-role-assignment-dialog';
 import { TravelerRolePicker } from '@/components/game/notes-tab/traveler-role-picker';
 import { PlayerNameWithRole } from '@/components/game/player-name-with-role';
 import { RoleAssignmentButton } from '@/components/game/role-assignment-button';
@@ -18,6 +19,7 @@ import {
   getTravelerClaimRoles,
   isTravelerRole,
 } from '@/utils/role-utils';
+import { isSushiBuffetScript } from '@/utils/script-service';
 
 const GENERIC_ASSIGNMENT_ROLE_NAMES = new Set(['Townsfolk', 'Outsider', 'Minion', 'Demon']);
 
@@ -146,50 +148,56 @@ export function RoleAssignmentActions() {
               </Text>
             </View>
           )}
-          {roleAssignmentKind === 'rumor' ? (
-            rumorSubject ? (
-              <RolePicker
-                description={
-                  rumorSource
-                    ? `What role did ${rumorSource.name} say ${rumorSubject.name} is?`
-                    : `What role is ${rumorSubject.name} rumored to be?`
-                }
-                onToggleRole={handleToggleRoleAssignment}
-                roles={regularRoles}
-                roleOwnerNames={roleOwnerNames}
-                sectioned
-                selectedRoleIds={roleAssignmentRoleIds}
-                scriptId={game.script.id}
-              />
-            ) : null
-          ) : isTravelerClaim ? (
-            <RolePicker
-              description="Choose which alignment this traveler is claiming."
-              onToggleRole={handleToggleRoleAssignment}
-              roles={travelerClaimRoles}
-              selectedRoleIds={roleAssignmentRoleIds}
-              scriptId={game.script.id}
-            />
+          {isSushiBuffetScript(game.script) ? (
+            <SushiBuffetRoleAssignmentDialog />
           ) : (
-            <RolePicker
-              description={`Tap a role to ${getRoleAssignmentLabel(roleAssignmentKind).toLocaleLowerCase()} or clear it.`}
-              onToggleRole={handleToggleRoleAssignment}
-              roles={regularRoles}
-              roleOwnerNames={roleOwnerNames}
-              sectioned
-              selectedRoleIds={roleAssignmentRoleIds}
-              scriptId={game.script.id}
-            />
+            <>
+              {roleAssignmentKind === 'rumor' ? (
+                rumorSubject ? (
+                  <RolePicker
+                    description={
+                      rumorSource
+                        ? `What role did ${rumorSource.name} say ${rumorSubject.name} is?`
+                        : `What role is ${rumorSubject.name} rumored to be?`
+                    }
+                    onToggleRole={handleToggleRoleAssignment}
+                    roles={regularRoles}
+                    roleOwnerNames={roleOwnerNames}
+                    sectioned
+                    selectedRoleIds={roleAssignmentRoleIds}
+                    scriptId={game.script.id}
+                  />
+                ) : null
+              ) : isTravelerClaim ? (
+                <RolePicker
+                  description="Choose which alignment this traveler is claiming."
+                  onToggleRole={handleToggleRoleAssignment}
+                  roles={travelerClaimRoles}
+                  selectedRoleIds={roleAssignmentRoleIds}
+                  scriptId={game.script.id}
+                />
+              ) : (
+                <RolePicker
+                  description={`Tap a role to ${getRoleAssignmentLabel(roleAssignmentKind).toLocaleLowerCase()} or clear it.`}
+                  onToggleRole={handleToggleRoleAssignment}
+                  roles={regularRoles}
+                  roleOwnerNames={roleOwnerNames}
+                  sectioned
+                  selectedRoleIds={roleAssignmentRoleIds}
+                  scriptId={game.script.id}
+                />
+              )}
+              {roleAssignmentKind === 'confirm' || roleAssignmentKind === 'guess' ? (
+                <TravelerRolePicker
+                  description={`Choose one traveler role to ${getRoleAssignmentLabel(roleAssignmentKind).toLocaleLowerCase()} for this player.`}
+                  onToggleRole={handleToggleRoleAssignment}
+                  roles={assignmentRoles.filter(isTravelerRole)}
+                  selectedRoleIds={roleAssignmentRoleIds}
+                  scriptId={game.script.id}
+                />
+              ) : null}
+            </>
           )}
-          {roleAssignmentKind === 'confirm' || roleAssignmentKind === 'guess' ? (
-            <TravelerRolePicker
-              description={`Choose one traveler role to ${getRoleAssignmentLabel(roleAssignmentKind).toLocaleLowerCase()} for this player.`}
-              onToggleRole={handleToggleRoleAssignment}
-              roles={assignmentRoles.filter(isTravelerRole)}
-              selectedRoleIds={roleAssignmentRoleIds}
-              scriptId={game.script.id}
-            />
-          ) : null}
         </View>
       ) : null}
     </View>

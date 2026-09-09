@@ -56,6 +56,7 @@ import {
   migrateV2ToV3,
   resolveScriptName,
 } from '@/utils/saved-note-store';
+import { SUSHI_BUFFET_SCRIPT_ID } from '@/utils/script-constants';
 import { restoreDuplicateScriptImages, stripDuplicateScriptImages } from '@/utils/script-storage';
 import { webStorage } from '@/utils/web-storage';
 
@@ -67,6 +68,7 @@ type CreateGameInput = {
   mapWidth: number;
   playerNames: string[];
   script?: StoredScript;
+  sushiRoleIds?: string[];
   storyteller?: Pick<Friend, 'id' | 'name'>;
 };
 
@@ -87,6 +89,7 @@ type GameState = GameData & {
   updateScript: (script: StoredScript) => void;
   deleteScript: (scriptId: string) => void;
   setGameScript: (gameId: string, script?: StoredScript) => void;
+  setGameSushiRoleIds: (gameId: string, roleIds: string[]) => void;
   setGameLorics: (gameId: string, lorics: Role[]) => void;
   setRoleCatalog: (roles: Role[]) => void;
   addPlayer: (gameId: string, name: string) => void;
@@ -297,7 +300,15 @@ export const useGameStore = create<GameState>()(
 
         return renamedFriendId;
       },
-      createGame: ({ lorics, mapHeight, mapWidth, playerNames, script, storyteller }) => {
+      createGame: ({
+        lorics,
+        mapHeight,
+        mapWidth,
+        playerNames,
+        script,
+        storyteller,
+        sushiRoleIds,
+      }) => {
         const now = new Date().toISOString();
         const appUserName = normalizePlayerName(get().appUserName) || 'You';
         const appUserKey = appUserName.toLocaleLowerCase();
@@ -373,6 +384,10 @@ export const useGameStore = create<GameState>()(
           conversations: [],
           lorics: lorics?.map((role) => role.id),
           scriptId: script?.id,
+          sushiRoleIds:
+            script?.id === SUSHI_BUFFET_SCRIPT_ID
+              ? normalizeSushiRoleIds(sushiRoleIds ?? script.roles.map((role) => role.id), script)
+              : undefined,
           script: script ? { ...script, roles: [...script.roles] } : undefined,
         };
 
@@ -459,6 +474,12 @@ export const useGameStore = create<GameState>()(
                   scriptId: script?.id,
                   scriptRoleIds: undefined,
                   scriptRoleOverrides: undefined,
+                  sushiRoleIds:
+                    script?.id === SUSHI_BUFFET_SCRIPT_ID
+                      ? game.script?.id === SUSHI_BUFFET_SCRIPT_ID
+                        ? (game.sushiRoleIds ?? game.script.roles.map((role) => role.id))
+                        : script.roles.map((role) => role.id)
+                      : undefined,
                   script: script
                     ? {
                         ...script,
@@ -471,6 +492,19 @@ export const useGameStore = create<GameState>()(
                         ),
                       }
                     : undefined,
+                  updatedAt: new Date().toISOString(),
+                }
+              : game,
+          ),
+        }));
+      },
+      setGameSushiRoleIds: (gameId, roleIds) => {
+        set((state) => ({
+          games: state.games.map((game) =>
+            game.id === gameId && game.script?.id === SUSHI_BUFFET_SCRIPT_ID
+              ? {
+                  ...game,
+                  sushiRoleIds: normalizeSushiRoleIds(roleIds, game.script),
                   updatedAt: new Date().toISOString(),
                 }
               : game,
@@ -1376,6 +1410,14 @@ export function getGameById(games: Game[], gameId: string | undefined) {
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeSushiRoleIds(roleIds: string[], script: StoredScript) {
+  const scriptRoleIds = new Set(script.roles.map((role) => role.id));
+
+  return roleIds.filter(
+    (roleId, index) => scriptRoleIds.has(roleId) && roleIds.indexOf(roleId) === index,
+  );
 }
 
 function getMapCenterPosition(game: Game): PlayerPosition | undefined {

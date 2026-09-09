@@ -131,6 +131,7 @@ export type Game = {
   scriptId?: string;
   scriptRoleIds?: string[];
   scriptRoleOverrides?: string[];
+  sushiRoleIds?: string[];
   script?: StoredScript;
   playerDayNotes?: PlayerDayNote[];
 };

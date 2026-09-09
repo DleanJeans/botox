@@ -5,10 +5,12 @@ import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/text';
 import { colors } from '@/theme/colors';
 import type { StoredScript } from '@/types/game';
+import { SUSHI_BUFFET_SCRIPT_ID } from '@/utils/script-constants';
 
 const PICKER_TRIGGER_CHROME_HEIGHT = 24;
 
 type GameScriptPickerProps = {
+  featuredScript?: StoredScript;
   scripts: StoredScript[];
   selectedScriptId: string | null;
   onBrowse: () => void;
@@ -19,6 +21,7 @@ type GameScriptPickerProps = {
 };
 
 export function GameScriptPicker({
+  featuredScript,
   onBrowse,
   onSelect,
   onTriggerHeightChange,
@@ -28,7 +31,10 @@ export function GameScriptPicker({
   triggerHeight,
 }: GameScriptPickerProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  const selectedScript = scripts.find((script) => script.id === selectedScriptId);
+  const selectableScripts = scripts.filter((script) => script.id !== SUSHI_BUFFET_SCRIPT_ID);
+  const selectedScript = [featuredScript, ...selectableScripts].find(
+    (script) => script?.id === selectedScriptId,
+  );
 
   function handleSelect(scriptId: string | null) {
     onSelect(scriptId);
@@ -137,13 +143,21 @@ export function GameScriptPicker({
               showsVerticalScrollIndicator
               style={{ flexGrow: 0, flexShrink: 1 }}
             >
+              {featuredScript ? (
+                <ScriptOption
+                  description="Built-in script with a customizable role pool"
+                  label={featuredScript.name}
+                  onPress={() => handleSelect(featuredScript.id)}
+                  selected={selectedScriptId === featuredScript.id}
+                />
+              ) : null}
               <ScriptOption
                 description="Assign roles later from the game screen"
                 label="No script"
                 selected={selectedScriptId === null}
                 onPress={() => handleSelect(null)}
               />
-              {scripts.map((script) => (
+              {selectableScripts.map((script) => (
                 <ScriptOption
                   description={getScriptOptionDescription(script, scriptPlayCounts?.get(script.id))}
                   author={script.author}

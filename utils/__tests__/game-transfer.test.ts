@@ -29,6 +29,26 @@ describe('game transfer', () => {
     expect(transfer.data.script).toEqual(script);
   });
 
+  it('keeps a Sushi Buffet script game-local when transferring a game', () => {
+    const sushiScript: StoredScript = {
+      id: 'sushi-buffet',
+      name: 'Sushi Buffet',
+      roles: [role, { id: 'beggar', name: 'Beggar', team: 'traveller' }],
+      updatedAt: '2026-08-18T00:00:00.000Z',
+      version: '1.0.0',
+    };
+    const game = createGame({ script: sushiScript });
+    const transfer = parseGameTransfer(createGameTransfer({ ...game, sushiRoleIds: [] }, []));
+    const result = mergeGameTransfer(createData(), transfer);
+
+    expect(result.scripts).toEqual([]);
+    expect(result.games[0]).toMatchObject({
+      scriptId: 'sushi-buffet',
+      sushiRoleIds: [],
+    });
+    expect(result.games[0].script).toEqual(sushiScript);
+  });
+
   it('round trips won and lost results and omits an unset result', () => {
     const wonTransfer = JSON.parse(createGameTransfer(createGame({ result: 'won' }), [script]));
     const lostTransfer = JSON.parse(createGameTransfer(createGame({ result: 'lost' }), [script]));

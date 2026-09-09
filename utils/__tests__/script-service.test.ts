@@ -4,14 +4,30 @@ import {
   createHomebrewScript,
   createOfficialCarouselScript,
   createStoredScript,
+  createSushiBuffetScript,
   fetchNightSheet,
   fetchOfficialRemoteScripts,
   OFFICIAL_CAROUSEL_SCRIPT_ID,
   type RemoteScript,
   restoreRemoteScript,
+  SUSHI_BUFFET_SCRIPT_ID,
 } from '@/utils/script-service';
 
 describe('script service', () => {
+  it('creates Sushi Buffet from the complete role catalog with a stable built-in ID', () => {
+    const catalog = [
+      { id: 'empath', name: 'Empath', team: 'townsfolk' },
+      { id: 'beggar', name: 'Beggar', team: 'traveller' },
+      { id: 'fabled_role', name: 'Fabled Role', edition: 'fabled' },
+    ];
+
+    expect(createSushiBuffetScript(catalog)).toMatchObject({
+      id: SUSHI_BUFFET_SCRIPT_ID,
+      name: 'Sushi Buffet',
+      roles: catalog,
+    });
+  });
+
   it('loads the official first-night and other-night sequences', async () => {
     const originalFetch = globalThis.fetch;
     const fetchMock = jest.fn().mockResolvedValue({

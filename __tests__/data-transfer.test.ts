@@ -17,6 +17,35 @@ describe('data transfer', () => {
     expect(parseBackup(createBackup(data))).toEqual(data);
   });
 
+  it('preserves an empty Sushi Buffet role pool without requiring a downloaded script', () => {
+    const script: StoredScript = {
+      id: 'sushi-buffet',
+      name: 'Sushi Buffet',
+      roles: [{ id: 'empath', name: 'Empath', edition: 'tb' }],
+      updatedAt: '2026-08-03T00:00:00.000Z',
+      version: '1.0.0',
+    };
+    const game: Game = {
+      activeDay: 1,
+      conversations: [],
+      createdAt: '2026-08-03T00:00:00.000Z',
+      id: 'sushi-game',
+      players: [],
+      script: script,
+      scriptId: script.id,
+      sushiRoleIds: [],
+      updatedAt: '2026-08-03T00:00:00.000Z',
+    };
+
+    const restored = parseBackup(createBackup({ ...data, games: [game] }));
+
+    expect(restored.games[0]).toMatchObject({
+      scriptId: 'sushi-buffet',
+      sushiRoleIds: [],
+    });
+    expect(restored.games[0].script).toEqual(script);
+  });
+
   it('round trips storyteller players and remaps their friend IDs', () => {
     const game: Game = {
       activeDay: 1,

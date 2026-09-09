@@ -17,6 +17,7 @@ import {
   mapGamePlayerIdsToFriendIds,
 } from '@/utils/object-id';
 import { mergeRoleCatalogMetadata } from '@/utils/role-utils';
+import { isSushiBuffetScript } from '@/utils/script-service';
 import { restoreRedundantRoleImageUrl, stripRedundantRoleImageUrl } from '@/utils/script-storage';
 
 const gameTransferFormat = 'grim-keeper-game';
@@ -128,13 +129,15 @@ export function parseGameTransfer(value: string): GameTransfer {
 export function mergeGameTransfer(data: GameData, transfer: GameTransfer): GameData {
   const importedGame = transfer.data.game;
   const importedScript = transfer.data.script;
-  const existingScript = importedScript
-    ? data.scripts.find(
-        (script) =>
-          script.id === importedScript.id ||
-          (importedScript.remoteId !== undefined && script.remoteId === importedScript.remoteId),
-      )
-    : undefined;
+  const portableBuiltInScript = importedScript && isSushiBuffetScript(importedScript);
+  const existingScript =
+    importedScript && !portableBuiltInScript
+      ? data.scripts.find(
+          (script) =>
+            script.id === importedScript.id ||
+            (importedScript.remoteId !== undefined && script.remoteId === importedScript.remoteId),
+        )
+      : undefined;
   const storedScript = existingScript
     ? existingScript.roles.length === 0 && importedScript?.roles.length
       ? {
@@ -144,12 +147,14 @@ export function mergeGameTransfer(data: GameData, transfer: GameTransfer): GameD
           roles: mergeRoleCatalogMetadata(importedScript.roles, data.roleCatalog),
         }
       : existingScript
-    : importedScript
+    : importedScript && !portableBuiltInScript
       ? {
           ...importedScript,
           roles: mergeRoleCatalogMetadata(importedScript.roles, data.roleCatalog),
         }
       : undefined;
+  const gameScript =
+    importedGame.script ?? storedScript ?? (portableBuiltInScript ? importedScript : undefined);
   const friends = addMissingFriendsForGames(data.friends, [importedGame], data.appUserName);
   const gameWithLocalAppUser = {
     ...importedGame,
@@ -162,17 +167,15 @@ export function mergeGameTransfer(data: GameData, transfer: GameTransfer): GameD
     players: importedGame.players.map((player) =>
       player.id === APP_USER_ID ? { ...player, name: data.appUserName } : player,
     ),
-    ...(importedGame.script
+    ...(gameScript
       ? {
           script: {
-            ...importedGame.script,
-            id: storedScript?.id ?? importedGame.script.id,
-            roles: mergeRoleCatalogMetadata(importedGame.script.roles, data.roleCatalog),
+            ...gameScript,
+            id: storedScript?.id ?? gameScript.id,
+            roles: mergeRoleCatalogMetadata(gameScript.roles, data.roleCatalog),
           },
         }
-      : storedScript
-        ? { script: { ...storedScript, roles: [...storedScript.roles] } }
-        : {}),
+      : {}),
   } satisfies Game;
   const game = mapGamePlayerIdsToFriendIds(gameWithLocalAppUser, friends, data.appUserName);
   const scripts = storedScript
@@ -208,6 +211,7 @@ function isGame(value: unknown): value is Game {
     isString(value.updatedAt) &&
     isFiniteNumber(value.activeDay) &&
     isOptionalGameResult(value.result) &&
+    isOptionalStringArray(value.sushiRoleIds) &&
     isOptionalFiniteNumber(value.mapWidth) &&
     isOptionalFiniteNumber(value.mapHeight) &&
     isOptionalFiniteNumber(value.tokenSize) &&
