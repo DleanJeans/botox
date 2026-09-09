@@ -26,6 +26,7 @@ import {
 import { getDefaultMapHeight, getDefaultMapWidth } from '@/utils/layout-utils';
 import { APP_USER_ID } from '@/utils/object-id';
 import { DESKTOP_CONTENT_MAX_WIDTH } from '@/utils/responsive-utils';
+import { sortScriptsByMostPlayed } from '@/utils/script-utils';
 
 export default function CreateRoute() {
   const { gameId: gameIdParam, scriptId: scriptIdParam } = useLocalSearchParams<{
@@ -65,12 +66,13 @@ export default function CreateRoute() {
     editingGame?.players.find((player) => player.id === APP_USER_ID)?.name ?? appUserName;
   const legacyScript = editingGame?.script;
   const availableScripts = useMemo(() => {
-    if (!legacyScript || scripts.some((script) => script.id === legacyScript.id)) {
-      return scripts;
-    }
+    const scriptsForPicker =
+      !legacyScript || scripts.some((script) => script.id === legacyScript.id)
+        ? scripts
+        : [legacyScript, ...scripts];
 
-    return [legacyScript, ...scripts];
-  }, [legacyScript, scripts]);
+    return isEditing ? scriptsForPicker : sortScriptsByMostPlayed(scriptsForPicker, games);
+  }, [games, isEditing, legacyScript, scripts]);
   const selectedScriptId = draftSelectedScriptId;
   const selectedScript = availableScripts.find((script) => script.id === selectedScriptId);
   const mapWidth = getDefaultMapWidth(viewportWidth);
