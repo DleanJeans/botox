@@ -1,5 +1,5 @@
 import type { Friend, FriendSummary, Game, SavedNote } from '@/types/game';
-import { normalizePlayerName } from '@/utils/conversation-utils';
+import { hasDuplicatePlayerName, normalizePlayerName } from '@/utils/conversation-utils';
 import { APP_USER_ID, createFriendId } from '@/utils/object-id';
 import { getNotesForPlayer } from '@/utils/saved-note-store';
 
@@ -102,6 +102,39 @@ export function sortStorytellerSummaries(friends: FriendSummary[]) {
       gamesDifference || first.name.localeCompare(second.name, undefined, { sensitivity: 'base' })
     );
   });
+}
+
+export function mergeFriendPlayerSelection(
+  currentPlayers: Array<Pick<Friend, 'id' | 'name'>>,
+  friends: FriendSummary[],
+  selectedFriendIds: string[],
+) {
+  const friendIds = new Set(friends.map((friend) => friend.id));
+  const selectedFriendIdSet = new Set(selectedFriendIds);
+  const friendsById = new Map(friends.map((friend) => [friend.id, friend]));
+  const retainedPlayers = currentPlayers.filter(
+    (player) => !friendIds.has(player.id) || selectedFriendIdSet.has(player.id),
+  );
+  const retainedPlayerIds = new Set(retainedPlayers.map((player) => player.id));
+  const retainedNames = retainedPlayers.map((player) => player.name);
+  const addedPlayers = selectedFriendIds.flatMap((friendId) => {
+    const friend = friendsById.get(friendId);
+
+    if (
+      !friend ||
+      retainedPlayerIds.has(friend.id) ||
+      hasDuplicatePlayerName(retainedNames, friend.name)
+    ) {
+      return [];
+    }
+
+    const player = { id: friend.id, name: normalizePlayerName(friend.name) };
+    retainedPlayerIds.add(player.id);
+    retainedNames.push(player.name);
+    return [player];
+  });
+
+  return [...retainedPlayers, ...addedPlayers];
 }
 
 export function hasFriendName(friends: FriendSummary[], name: string) {

@@ -17,9 +17,11 @@ import { Text } from '@/components/text';
 import { TitleHeader } from '@/components/title-header';
 import { useGameStore } from '@/store/game-store';
 import { colors } from '@/theme/colors';
+import type { FriendSummary } from '@/types/game';
 import { hasDuplicatePlayerName, normalizePlayerName } from '@/utils/conversation-utils';
 import {
   getFriendSummaries,
+  mergeFriendPlayerSelection,
   sortFriendSummaries,
   sortStorytellerSummaries,
 } from '@/utils/friend-utils';
@@ -101,6 +103,15 @@ export default function CreateRoute() {
       ),
     [friends, seatedNames],
   );
+  const playerPickerFriends = useMemo(
+    () => friends.filter((friend) => friend.id !== draftSelectedStorytellerId),
+    [draftSelectedStorytellerId, friends],
+  );
+  const selectedFriendIds = useMemo(() => {
+    const friendIds = new Set(playerPickerFriends.map((friend) => friend.id));
+
+    return players.flatMap((player) => (friendIds.has(player.id) ? [player.id] : []));
+  }, [playerPickerFriends, players]);
   const playerOrderKey = useMemo(() => players.map((player) => player.id).join('|'), [players]);
   const playerIndexes = useMemo(
     () => new Map(players.map((player, index) => [player.id, index])),
@@ -178,8 +189,8 @@ export default function CreateRoute() {
     requestAnimationFrame(() => inputRef.current?.focus());
   }
 
-  function handleSelectFriend(friendName: string) {
-    const normalizedFriendName = normalizePlayerName(friendName);
+  function handleSelectFriend(friend: FriendSummary) {
+    const normalizedFriendName = normalizePlayerName(friend.name);
 
     if (!normalizedFriendName || hasDuplicatePlayerName(selectedNames, normalizedFriendName)) {
       return;
@@ -187,11 +198,17 @@ export default function CreateRoute() {
 
     setDraftPlayers((currentPlayers) => [
       ...currentPlayers,
-      { id: createDraftId(), name: normalizedFriendName },
+      { id: friend.id, name: normalizedFriendName },
     ]);
     setName('');
     setNameFocused(true);
     setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function handleApplyFriendSelection(friendIds: string[]) {
+    setDraftPlayers((currentPlayers) =>
+      mergeFriendPlayerSelection(currentPlayers, playerPickerFriends, friendIds),
+    );
   }
 
   function handleRemovePlayer(playerId: string) {
@@ -279,6 +296,7 @@ export default function CreateRoute() {
           }
           ListHeaderComponent={
             <CreateFormHeader
+              allFriends={playerPickerFriends}
               canAddPlayer={canAddPlayer}
               canStart={canStart}
               duplicateName={duplicateName}
@@ -290,6 +308,7 @@ export default function CreateRoute() {
               name={name}
               nameFocused={nameFocused}
               onAddPlayer={handleAddPlayer}
+              onApplyFriendSelection={handleApplyFriendSelection}
               onBlurName={() => setNameFocused(false)}
               onBrowseScripts={() =>
                 router.push({
@@ -312,6 +331,7 @@ export default function CreateRoute() {
               scripts={availableScripts}
               scriptPlayCounts={scriptPlayCounts}
               selectedScriptId={selectedScriptId}
+              selectedFriendIds={selectedFriendIds}
               selectedLoricIds={selectedLoricIds}
               selectedStorytellerId={draftSelectedStorytellerId}
               storytellers={storytellerFriends}

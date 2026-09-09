@@ -3,6 +3,7 @@ import {
   addMissingFriends,
   getFriendSummaries,
   hasFriendName,
+  mergeFriendPlayerSelection,
   sortFriendSummaries,
   sortStorytellerSummaries,
 } from '@/utils/friend-utils';
@@ -122,6 +123,29 @@ describe('friend utils', () => {
       'Alice',
       'Ben',
       'Cora',
+    ]);
+  });
+
+  it('merges selected friend players while preserving manual players', () => {
+    const friends = [
+      { createdAt: games[0].createdAt, id: 'alice', name: 'Alice' },
+      { createdAt: games[0].createdAt, id: 'ben', name: 'Ben' },
+      { createdAt: games[0].createdAt, id: 'cora', name: 'Cora' },
+    ];
+
+    expect(
+      mergeFriendPlayerSelection(
+        [
+          { id: 'manual', name: 'Manual Player' },
+          { id: 'alice', name: 'Alice' },
+        ],
+        friends.map((friend) => ({ ...friend, gamesPlayed: 0, gamesStorytold: 0 })),
+        ['alice', 'cora'],
+      ),
+    ).toEqual([
+      { id: 'manual', name: 'Manual Player' },
+      { id: 'alice', name: 'Alice' },
+      { id: 'cora', name: 'Cora' },
     ]);
   });
 });

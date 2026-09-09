@@ -4,6 +4,7 @@ import type { TextInput as RNTextInput } from 'react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { FixedPlayerRow } from '@/components/create/fixed-player-row';
+import { FriendPlayerPicker } from '@/components/create/friend-player-picker';
 import { LoricPicker } from '@/components/create/loric-picker';
 import { StorytellerPicker } from '@/components/create/storyteller-picker';
 import { FriendSuggestions } from '@/components/friends/friend-suggestions';
@@ -13,6 +14,7 @@ import { colors } from '@/theme/colors';
 import type { FriendSummary, Role, StoredScript } from '@/types/game';
 
 type CreateFormHeaderProps = {
+  allFriends: FriendSummary[];
   canAddPlayer: boolean;
   canStart: boolean;
   duplicateName: boolean;
@@ -29,7 +31,8 @@ type CreateFormHeaderProps = {
   onBrowseScripts: () => void;
   onChangeName: (name: string) => void;
   onFocusName: () => void;
-  onSelectFriend: (name: string) => void;
+  onApplyFriendSelection: (friendIds: string[]) => void;
+  onSelectFriend: (friend: FriendSummary) => void;
   onSelectLorics: (roleIds: string[]) => void;
   onSelectScript: (scriptId: string | null) => void;
   onSelectStoryteller: (friendId?: string) => void;
@@ -39,11 +42,13 @@ type CreateFormHeaderProps = {
   scripts: StoredScript[];
   selectedScriptId: string | null;
   selectedLoricIds: string[];
+  selectedFriendIds: string[];
   selectedStorytellerId: string | null;
   storytellers: FriendSummary[];
 };
 
 export function CreateFormHeader({
+  allFriends,
   canAddPlayer,
   canStart,
   duplicateName,
@@ -56,6 +61,7 @@ export function CreateFormHeader({
   name,
   nameFocused,
   onAddPlayer,
+  onApplyFriendSelection,
   onBlurName,
   onBrowseScripts,
   onChangeName,
@@ -70,6 +76,7 @@ export function CreateFormHeader({
   scripts,
   selectedScriptId,
   selectedLoricIds,
+  selectedFriendIds,
   selectedStorytellerId,
   storytellers,
 }: CreateFormHeaderProps) {
@@ -181,6 +188,13 @@ export function CreateFormHeader({
             </Text>
           </Pressable>
         </View>
+        {!isEditing ? (
+          <FriendPlayerPicker
+            friends={allFriends}
+            onDone={onApplyFriendSelection}
+            selectedFriendIds={selectedFriendIds}
+          />
+        ) : null}
       </View>
 
       {!isEditing ? (

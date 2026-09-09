@@ -6,7 +6,7 @@ import type { FriendSummary } from '@/types/game';
 
 type FriendSuggestionsProps = {
   friends: FriendSummary[];
-  onSelectFriend: (name: string) => void;
+  onSelectFriend: (friend: FriendSummary) => void;
 };
 
 export function FriendSuggestions({ friends, onSelectFriend }: FriendSuggestionsProps) {
@@ -20,7 +20,7 @@ export function FriendSuggestions({ friends, onSelectFriend }: FriendSuggestions
         <Pressable
           accessibilityRole="button"
           key={friend.id}
-          onPressIn={() => onSelectFriend(friend.name)}
+          onPressIn={() => onSelectFriend(friend)}
           style={({ pressed }) => [styles.friend, pressed ? styles.friendPressed : null]}
         >
           <Text style={styles.friendName}>{friend.name}</Text>
