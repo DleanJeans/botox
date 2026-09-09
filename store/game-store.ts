@@ -57,7 +57,12 @@ import {
   resolveScriptName,
 } from '@/utils/saved-note-store';
 import { SUSHI_BUFFET_SCRIPT_ID } from '@/utils/script-constants';
-import { restoreDuplicateScriptImages, stripDuplicateScriptImages } from '@/utils/script-storage';
+import {
+  restoreDuplicateScriptImages,
+  restoreSushiBuffetScriptRoles,
+  stripDuplicateScriptImages,
+  stripSushiBuffetScriptRoles,
+} from '@/utils/script-storage';
 import { webStorage } from '@/utils/web-storage';
 
 export { getNotesForPlayer, migrateV2ToV3 };
@@ -531,16 +536,19 @@ export const useGameStore = create<GameState>()(
             ...script,
             roles: mergeRoleCatalogMetadata(script.roles, roleCatalog),
           }));
-          const games = state.games.map((game) =>
-            game.script
-              ? {
-                  ...game,
-                  script: {
-                    ...game.script,
-                    roles: mergeRoleCatalogMetadata(game.script.roles, roleCatalog),
-                  },
-                }
-              : game,
+          const games = restoreSushiBuffetScriptRoles(
+            state.games.map((game) =>
+              game.script
+                ? {
+                    ...game,
+                    script: {
+                      ...game.script,
+                      roles: mergeRoleCatalogMetadata(game.script.roles, roleCatalog),
+                    },
+                  }
+                : game,
+            ),
+            roleCatalog,
           );
 
           return { games, roleCatalog, scripts };
@@ -1372,16 +1380,19 @@ export const useGameStore = create<GameState>()(
           ...script,
           roles: mergeRoleCatalogMetadata(script.roles, roleCatalog),
         }));
-        const games = (state?.games ?? currentState.games).map((game) =>
-          game.script
-            ? {
-                ...game,
-                script: {
-                  ...game.script,
-                  roles: mergeRoleCatalogMetadata(game.script.roles, roleCatalog),
-                },
-              }
-            : game,
+        const games = restoreSushiBuffetScriptRoles(
+          (state?.games ?? currentState.games).map((game) =>
+            game.script
+              ? {
+                  ...game,
+                  script: {
+                    ...game.script,
+                    roles: mergeRoleCatalogMetadata(game.script.roles, roleCatalog),
+                  },
+                }
+              : game,
+          ),
+          roleCatalog,
         );
 
         return {
@@ -1395,7 +1406,7 @@ export const useGameStore = create<GameState>()(
       partialize: (state) => ({
         appUserName: state.appUserName,
         friends: state.friends,
-        games: stripDuplicateScriptImages(state.games, state.scripts),
+        games: stripDuplicateScriptImages(stripSushiBuffetScriptRoles(state.games), state.scripts),
         roleCatalog: state.roleCatalog,
         savedNotes: state.savedNotes,
         scripts: state.scripts,

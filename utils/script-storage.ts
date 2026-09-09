@@ -1,4 +1,44 @@
 import type { Game, Role, StoredScript } from '@/types/game';
+import { mergeRoleCatalogMetadata } from '@/utils/role-utils';
+import { SUSHI_BUFFET_SCRIPT_ID } from '@/utils/script-constants';
+
+export function stripSushiBuffetScriptRoles(games: Game[]) {
+  return games.map((game) => {
+    const script = game.script;
+    if (script?.id !== SUSHI_BUFFET_SCRIPT_ID) {
+      return game;
+    }
+
+    const enabledRoleIds = new Set(game.sushiRoleIds ?? script.roles.map((role) => role.id));
+    const enabledRoles = script.roles.filter((role) => enabledRoleIds.has(role.id));
+    const disabledRoles = script.roles.filter((role) => !enabledRoleIds.has(role.id));
+    const roles = enabledRoles.length <= disabledRoles.length ? enabledRoles : disabledRoles;
+
+    return {
+      ...game,
+      script: { ...script, roles },
+    };
+  });
+}
+
+export function restoreSushiBuffetScriptRoles(games: Game[], roleCatalog: Role[]) {
+  return games.map((game) => {
+    const script = game.script;
+    if (script?.id !== SUSHI_BUFFET_SCRIPT_ID) {
+      return game;
+    }
+
+    const rolesById = new Map([...roleCatalog, ...script.roles].map((role) => [role.id, role]));
+
+    return {
+      ...game,
+      script: {
+        ...script,
+        roles: mergeRoleCatalogMetadata([...rolesById.values()], roleCatalog),
+      },
+    };
+  });
+}
 
 export function stripDuplicateScriptImages(games: Game[], scripts: StoredScript[]) {
   const scriptIds = new Set(scripts.map((script) => script.id));
