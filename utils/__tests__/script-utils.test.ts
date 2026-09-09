@@ -1,5 +1,10 @@
-import type { Game, StoredScript } from '@/types/game';
-import { getScriptPlayCounts, sortScriptsByMostPlayed } from '@/utils/script-utils';
+import type { Game, Role, SavedNote, StoredScript } from '@/types/game';
+import {
+  getScriptPlayCounts,
+  getScriptRoleEntries,
+  sortScriptRoleEntriesByNightOrder,
+  sortScriptsByMostPlayed,
+} from '@/utils/script-utils';
 
 const scripts: StoredScript[] = [
   createScript('script-z', 'Zulu'),
@@ -68,6 +73,97 @@ describe('script utils', () => {
     ]);
     expect(scripts).toEqual(originalOrder);
   });
+
+  it('merges and deduplicates script, catalog, and saved notes for each role', () => {
+    const roles: Role[] = [
+      { id: 'empath', name: 'Empath', notes: ['Watch timing.'] },
+      { id: 'imp', name: 'Imp' },
+    ];
+    const catalog: Role[] = [
+      {
+        ability: 'Learn neighbors.',
+        id: 'empath',
+        name: 'Empath',
+        notes: ['Watch timing.', 'Check claims.'],
+      },
+      { id: 'imp', name: 'Imp', team: 'demon' },
+    ];
+    const savedNotes: SavedNote[] = [
+      createSavedNote('note-1', 'empath', 'Check claims.', 'Alice'),
+      createSavedNote('note-2', 'empath', 'Review timing.', 'Ben'),
+    ];
+
+    expect(getScriptRoleEntries(roles, catalog, savedNotes)).toEqual([
+      {
+        description: 'Learn neighbors.',
+        noteCount: 3,
+        notes: [
+          { playerNames: [], text: 'Watch timing.' },
+          { playerNames: ['Alice'], text: 'Check claims.' },
+          { playerNames: ['Ben'], text: 'Review timing.' },
+        ],
+        role: {
+          ability: undefined,
+          id: 'empath',
+          name: 'Empath',
+          notes: ['Watch timing.', 'Check claims.', 'Review timing.'],
+        },
+      },
+      {
+        description: undefined,
+        noteCount: 0,
+        notes: [],
+        role: { id: 'imp', name: 'Imp', notes: [] },
+      },
+    ]);
+  });
+
+  it('sorts roles by each nightsheet tab and keeps unknown roles stable at the end', () => {
+    const entries = getScriptRoleEntries(
+      [
+        { id: 'custom-b', name: 'Custom B' },
+        { id: 'imp', name: 'Imp' },
+        { id: 'custom-a', name: 'Custom A' },
+        { id: 'empath', name: 'Empath' },
+      ],
+      [
+        { id: 'empath', name: 'Empath' },
+        { id: 'imp', name: 'Imp' },
+      ],
+      [],
+    );
+
+    expect(
+      sortScriptRoleEntriesByNightOrder(
+        entries,
+        { firstNight: ['empath'], otherNight: ['imp'] },
+        'otherNight',
+      ).map(({ role }) => role.id),
+    ).toEqual(['imp', 'custom-b', 'custom-a', 'empath']);
+
+    expect(
+      sortScriptRoleEntriesByNightOrder(
+        entries,
+        { firstNight: ['empath'], otherNight: ['imp'] },
+        'firstNight',
+      ).map(({ role }) => role.id),
+    ).toEqual(['empath', 'custom-b', 'imp', 'custom-a']);
+  });
+
+  it('supports filtering the derived entries to roles with notes', () => {
+    const entries = getScriptRoleEntries(
+      [
+        { id: 'empath', name: 'Empath', notes: ['Watch timing.'] },
+        { id: 'imp', name: 'Imp' },
+      ],
+      [],
+      [],
+    );
+
+    expect(entries.filter(({ noteCount }) => noteCount > 0).map(({ role }) => role.id)).toEqual([
+      'empath',
+    ]);
+  });
 });
 
 function createScript(id: string, name: string): StoredScript {
@@ -89,5 +185,19 @@ function createGame(overrides: Partial<Game> = {}): Game {
     players: [],
     updatedAt: '2026-09-09T00:00:00.000Z',
     ...overrides,
+  };
+}
+
+function createSavedNote(id: string, roleId: string, text: string, playerName = ''): SavedNote {
+  return {
+    createdAt: '2026-09-09T00:00:00.000Z',
+    day: 1,
+    gameId: 'game-1',
+    id,
+    playerName,
+    roleIds: [roleId],
+    scriptName: 'Script',
+    text,
+    updatedAt: '2026-09-09T00:00:00.000Z',
   };
 }

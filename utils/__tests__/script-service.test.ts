@@ -1,8 +1,10 @@
 import {
+  BOTC_NIGHT_SHEET_URL,
   BOTC_SCRIPTS_API_URL,
   createHomebrewScript,
   createOfficialCarouselScript,
   createStoredScript,
+  fetchNightSheet,
   fetchOfficialRemoteScripts,
   OFFICIAL_CAROUSEL_SCRIPT_ID,
   type RemoteScript,
@@ -10,6 +12,25 @@ import {
 } from '@/utils/script-service';
 
 describe('script service', () => {
+  it('loads the official first-night and other-night sequences', async () => {
+    const originalFetch = globalThis.fetch;
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ firstNight: ['washerwoman'], otherNight: ['empath'] }),
+    } as unknown as Response);
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    try {
+      await expect(fetchNightSheet()).resolves.toEqual({
+        firstNight: ['washerwoman'],
+        otherNight: ['empath'],
+      });
+      expect(fetchMock).toHaveBeenCalledWith(BOTC_NIGHT_SHEET_URL);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('creates a stored homebrew script from standard script JSON', () => {
     expect(
       createHomebrewScript(

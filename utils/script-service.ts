@@ -7,8 +7,10 @@ import {
   normalizeRoleCatalog,
   parseRoleIconCatalog,
 } from '@/utils/role-utils';
+import type { NightSheet } from '@/utils/script-utils';
 
 export const BOTC_SCRIPTS_API_URL = 'https://www.botcscripts.com/api/scripts';
+export const BOTC_NIGHT_SHEET_URL = 'https://release.botc.app/resources/data/nightsheet.json';
 export const OFFICIAL_SCRIPT_AUTHOR = 'The Pandemonium Institute';
 export const OFFICIAL_CAROUSEL_SCRIPT_ID = 'carousel';
 const BOTC_RESOURCES_URL = `${BOTC_ROLE_ICON_BASE_URL.replace('/characters', '')}/`;
@@ -51,6 +53,23 @@ export async function fetchRoleCatalog(): Promise<Role[]> {
   }
 
   return roles;
+}
+
+export async function fetchNightSheet(): Promise<NightSheet> {
+  const response = await fetch(BOTC_NIGHT_SHEET_URL);
+  if (!response.ok) {
+    throw new Error(`Nightsheet request failed with ${response.status}`);
+  }
+
+  const data = (await response.json()) as { firstNight?: unknown; otherNight?: unknown };
+  const firstNight = getNightSheetRoleIds(data.firstNight);
+  const otherNight = getNightSheetRoleIds(data.otherNight);
+
+  if (firstNight.length === 0 && otherNight.length === 0) {
+    throw new Error('The nightsheet does not contain any role IDs.');
+  }
+
+  return { firstNight, otherNight };
 }
 
 export async function fetchRemoteScripts(search = ''): Promise<RemoteScript[]> {
@@ -218,6 +237,12 @@ function parseRemoteScript(value: unknown): RemoteScript[] {
 
 function getOptionalText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function getNightSheetRoleIds(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((roleId): roleId is string => typeof roleId === 'string')
+    : [];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
